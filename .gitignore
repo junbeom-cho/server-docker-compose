@@ -1,0 +1,17 @@
+# 공통
+.env
+!.env-sample
+**/.DS_Store
+
+# Nginx-Proxy-Manager
+npm/data/
+npm/letsencrypt/
+
+# Dockge
+dockge/data/
+
+# Homepage (일단 logs만 제외하고 나머지는 필요시 추가)
+homepage/config/logs/
+
+# Stirling-PDF
+stirling/stirling-data/

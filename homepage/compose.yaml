@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    ports:
+      # 내부 접속 포트
+      - 3000:3000
+    volumes:
+      # 설정 파일 저장소
+      - /opt/docker/homepage/config:/app/config
+      # 도커 상태를 모니터링하기 위한 소켓 연결
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: "*"
+networks:
+  dockge_default:
+    external: true
+  npm_default:
+    external: true
