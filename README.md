@@ -3,10 +3,15 @@
 ## 개요
 서버에서 호스팅 중인 **Stack** 들의 **docker-compose.yaml** 및 **configuration** 파일들의 추적 및 관리를 위한 Repository
 
+---
+
 ## Stack List
-### [Nginx-Proxy-Manager](#nginx-porxy-manager)
-### [Dockge](#dockge)
-### [Homepage](#homepage)
+### Management/Security
+- [Nginx-Proxy-Manager](#nginx-porxy-manager)
+- [Dockge](#dockge)
+
+### Mornitoring
+- [Homepage](#homepage)
 
 ---
 
