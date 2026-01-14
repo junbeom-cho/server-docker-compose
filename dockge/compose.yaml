@@ -7,7 +7,7 @@ services:
       - 5001:5001
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./data:/app/data
+      - /opt/docker/dockge/data:/app/data
       # 중요: 우리가 만든 /opt/docker 폴더 전체를 관리하도록 설정
       - /opt/docker:/opt/stacks
     environment:
