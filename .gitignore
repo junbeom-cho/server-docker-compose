@@ -6,6 +6,7 @@
 # Nginx-Proxy-Manager
 npm/data/
 npm/letsencrypt/
+npm/mysql/
 
 # Dockge
 dockge/data/
