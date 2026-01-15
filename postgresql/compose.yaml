@@ -8,7 +8,7 @@ services:
       # 슈퍼유저(Root)의 비밀번호를 설정합니다.
       POSTGRES_PASSWORD: ${PG_PASSWORD}
       TZ: Asia/Seoul
-      LANG: ko_KR.utf8
+      LANG: en_US.utf8
     # DB 데이터 유실 방지를 위해 호스트 디렉토리에 저장합니다.
     volumes:
       - ./data:/var/lib/postgresql/data
@@ -25,7 +25,7 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-  networks:
-    default:
-      name: shared-network
-      external: true
+networks:
+  default:
+    name: shared-network
+    external: true
