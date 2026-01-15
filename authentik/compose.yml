@@ -1,0 +1,78 @@
+services:
+  server:
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2025.12.0}
+    container_name: authentik-server
+    command: server
+    environment:
+      # 중요: 아까 만든 외부 DB 컨테이너 이름(shared-database)을 적습니다.
+      AUTHENTIK_POSTGRESQL__HOST: shared-postgres
+      # 공유 DB 안에 만들어둔 Authentik용 DB 이름과 유저명
+      AUTHENTIK_POSTGRESQL__NAME: authentik_db
+      AUTHENTIK_POSTGRESQL__USER: authentik_user
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_AUTHENTIK_USER_PASSWORD}
+      
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:?secret key required}
+      
+      # Redis 설정 (Authentik은 Redis가 필수입니다. 별도 Redis가 없다면 추가 필요)
+      # 만약 Redis도 'shared-redis' 처럼 외부에 있다면 호스트 수정 필요
+      AUTHENTIK_REDIS__HOST: redis
+    volumes:
+      - ./data:/data
+      - ./custom-templates:/templates
+    ports:
+      - 9000:9000
+      - 9443:9443
+    # 공유 네트워크에 접속하여 DB를 찾습니다.
+    networks:
+      - shared-network
+    restart: unless-stopped
+
+  worker:
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2025.12.0}
+    container_name: authentik-worker
+    command: worker
+    environment:
+      # 서버와 동일하게 외부 DB를 바라봅니다.
+      AUTHENTIK_POSTGRESQL__HOST: shared-postgres
+      AUTHENTIK_POSTGRESQL__NAME: authentik_db
+      AUTHENTIK_POSTGRESQL__USER: authentik_user
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_AUTHENTIK_USER_PASSWORD}
+      
+      AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY:?secret key required}
+      AUTHENTIK_REDIS__HOST: redis
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/data
+      - ./certs:/certs
+      - ./custom-templates:/templates
+    # 워커도 DB 접속이 필요하므로 네트워크 추가
+    networks:
+      - shared-network
+    restart: unless-stopped
+
+  # Authentik은 Redis가 필수입니다.
+  # 만약 공유 Redis를 쓰지 않는다면, Authentik 전용으로 여기에 포함시켜야 합니다.
+  redis:
+    image: docker.io/library/redis:alpine
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - redis:/data
+    networks:
+      - shared-network
+
+volumes:
+  redis:
+    driver: local
+
+# 아까 만든 외부 네트워크를 불러옵니다.
+networks:
+  shared-network:
+    name: shared-network
+    external: true
