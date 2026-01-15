@@ -29,4 +29,3 @@ services:
     default:
       name: shared-network
       external: true
-networks: {}
