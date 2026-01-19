@@ -12,7 +12,8 @@ services:
       GID: "${GID-1000}"
       UID: "${UID-1000}"
     networks:
-      - security_network
+      - crowdsec_default
+      - npm_default
     volumes:
       # 1. 수집 설정 파일 (가장 중요)
       - /opt/docker/crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml
@@ -23,12 +24,13 @@ services:
       
       # 3. NPM 로그 공유 (읽기 전용)
       # NPM의 실제 로그 저장 경로로 맞춰주세요.
-      - /opt/docker/nginx-proxy-manager/logs:/var/log/nginx:ro
+      - /opt/docker/nginx-proxy-manager/data/logs:/var/log/nginx:ro
       
       # 4. 호스트 시스템 로그 (SSH 공격 등 탐지용)
       - /var/log:/var/log:ro
 
 networks:
-  security_network:
-    name: security_network # 고정된 이름 사용
-    driver: bridge
+  crowdsec_default:
+    external: true
+  npm_default:
+    external: true

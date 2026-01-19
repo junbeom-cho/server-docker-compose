@@ -1,0 +1,13 @@
+# Nginx Porxy Manager 로그 수집 설정
+filenames:
+  - /opt/docker/nginx-proxy-manager/data/logs/*.log
+labels:
+  type: nginx-proxy-manager
+
+---
+# 호스트 SSH 로그 수집 설정
+filenames:
+  - /var/log/auth.log
+  - /var/log/syslog
+labels:
+  type: syslog
