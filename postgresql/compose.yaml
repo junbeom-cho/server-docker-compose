@@ -24,8 +24,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - default
     restart: unless-stopped
 networks:
-  default:
-    name: shared-network
-    external: true
+  postgresql_defualt:
+    external: false

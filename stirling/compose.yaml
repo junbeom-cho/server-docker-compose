@@ -12,5 +12,9 @@ services:
     environment:
       - SECURITY_ENABLELOGIN=false # Set true to enable user authentication
       - LANGS=en_GB # Interface language
+    networks:
+      - npm_default
     restart: unless-stopped
-networks: {}
+networks:
+  npm_default:
+    external: true

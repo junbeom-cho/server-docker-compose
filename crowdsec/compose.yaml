@@ -1,0 +1,34 @@
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    # 사용자가 수동으로 끄지 않는 한 자동 재시작
+    restart: unless-stopped
+    ports:
+      - 127.0.0.1:8080:8080 # LAPI 통신용 (NPM과 공유)
+    environment:
+      # NPM 전용 컬렉션과 기본 OS 보안 컬렉션 설치
+      COLLECTIONS: "crowdsecurity/nginx-proxy-manager crowdsecurity/base-os"
+      GID: "${GID-1000}"
+      UID: "${UID-1000}"
+    networks:
+      - security_network
+    volumes:
+      # 1. 수집 설정 파일 (가장 중요)
+      - /opt/docker/crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml
+      
+      # 2. 데이터 및 설정 보존 (기존 Named Volume 대신 바인드 마운트 사용)
+      - /opt/docker/crowdsec/config:/etc/crowdsec
+      - /opt/docker/crowdsec/data:/var/lib/crowdsec/data
+      
+      # 3. NPM 로그 공유 (읽기 전용)
+      # NPM의 실제 로그 저장 경로로 맞춰주세요.
+      - /opt/docker/nginx-proxy-manager/logs:/var/log/nginx:ro
+      
+      # 4. 호스트 시스템 로그 (SSH 공격 등 탐지용)
+      - /var/log:/var/log:ro
+
+networks:
+  security_network:
+    name: security_network # 고정된 이름 사용
+    driver: bridge
