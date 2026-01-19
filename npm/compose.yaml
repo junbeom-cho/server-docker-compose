@@ -24,6 +24,8 @@ services:
         - /bin/check-health
       interval: 10s
       timeout: 3s
+    networks:
+      - default
     depends_on:
       - db
   db:
