@@ -41,4 +41,6 @@ services:
       MARIADB_AUTO_UPGRADE: "1"
     volumes:
       - /opt/docker/npm/mysql:/var/lib/mysql
+    networks:
+      - default
 networks: {}
