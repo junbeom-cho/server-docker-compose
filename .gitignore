@@ -16,3 +16,6 @@ homepage/config/logs/
 
 # Stirling-PDF
 stirling/stirling-data/
+
+# CloudBeaver
+cloudbeaver/data
