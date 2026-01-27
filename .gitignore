@@ -2,18 +2,10 @@
 .env
 !.env-sample
 **/.DS_Store
+containerd/
 
 # Nginx-Proxy-Manager
-npmplus/data/
+stacks/npmplus/data/
 
 # Dockge
 dockge/data/
-
-# Homepage (일단 logs만 제외하고 나머지는 필요시 추가)
-homepage/config/logs/
-
-# Stirling-PDF
-stirling/stirling-data/
-
-# CloudBeaver
-cloudbeaver/data
