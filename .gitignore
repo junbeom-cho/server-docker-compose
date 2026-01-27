@@ -4,9 +4,7 @@
 **/.DS_Store
 
 # Nginx-Proxy-Manager
-npm/data/
-npm/letsencrypt/
-npm/mysql/
+npmplus/data/
 
 # Dockge
 dockge/data/
