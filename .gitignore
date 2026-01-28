@@ -3,6 +3,10 @@
 !.env-sample
 **/.DS_Store
 containerd/
+**/data/
+**/config/
+**/logs/
+
 
 # Nginx-Proxy-Manager
 stacks/npmplus/data/
@@ -15,3 +19,5 @@ stacks/postgresql/data/
 
 # CloudBeaver
 stacks/cloudbeaver/data/
+
+# Homepage
