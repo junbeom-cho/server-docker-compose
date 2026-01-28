@@ -21,3 +21,10 @@ stacks/postgresql/data/
 stacks/cloudbeaver/data/
 
 # Homepage
+stacks/homepage/config/
+
+# Stirling PDF
+stacks/stirling-pdf/data/
+
+# IT-Tools
+stacks/it-tools/data/
