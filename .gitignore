@@ -9,3 +9,9 @@ stacks/npmplus/data/
 
 # Dockge
 dockge/data/
+
+# PostgreSQL
+stacks/postgresql/data/
+
+# CloudBeaver
+stacks/cloudbeaver/data/
