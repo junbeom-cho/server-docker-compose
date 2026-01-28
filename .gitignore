@@ -28,3 +28,9 @@ stacks/stirling-pdf/data/
 
 # IT-Tools
 stacks/it-tools/data/
+
+# Mealie
+stacks/mealie/data/
+
+# Kopia
+stacks/kopia/google-drive-key.json
