@@ -6,3 +6,9 @@
 ## Self-Hosting List
 - Dockge
 - NPM+
+- Stirling-PDF
+- PostgreSQL
+- IT-Tools
+- Homepage
+- CloudBeaver
+- Authentik
