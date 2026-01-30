@@ -1,10 +1,11 @@
 services:
   it-tools:
-    image: corentinth/it-tools:latest
-    ports:
-      - 8081:80
-    restart: unless-stopped
     container_name: it-tools
+    image: ghcr.io/sharevb/it-tools:nightly
+    pull_policy: always
+    restart: unless-stopped
+    ports:
+      - 8081:8080
     networks:
       - npm_default
 networks:

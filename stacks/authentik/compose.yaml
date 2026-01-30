@@ -21,6 +21,7 @@ services:
     networks:
       - npm_default
       - postgresql_default
+      - authentik_default
   worker:
     container_name: authentik_worker
     command: worker
@@ -43,10 +44,28 @@ services:
     networks:
       - npm_default
       - postgresql_default
+      - authentik_default
+  redis:
+    image: redis:alpine
+    container_name: authentik_redis
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli ping | grep PONG
+      start_period: 20s
+      interval: 30s
+      retries: 5
+    networks:
+      - authentik_default
 volumes:
   database:
     driver: local
 networks:
+  authentik_default:
+    driver: bridge
+    name: authentik_default
   npm_default:
     external: true
   postgresql_default:

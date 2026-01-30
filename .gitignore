@@ -10,6 +10,7 @@ containerd/
 
 # Nginx-Proxy-Manager
 stacks/npmplus/data/
+stacks/npmplus/crowdsec/
 
 # Dockge
 dockge/data/
