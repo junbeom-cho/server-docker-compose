@@ -21,7 +21,7 @@ services:
     networks:
       - npm_default
       - postgresql_default
-      - authentik_default
+      - default
   worker:
     container_name: authentik_worker
     command: worker
@@ -44,7 +44,7 @@ services:
     networks:
       - npm_default
       - postgresql_default
-      - authentik_default
+      - default
   redis:
     image: redis:alpine
     container_name: authentik_redis
@@ -58,14 +58,13 @@ services:
       interval: 30s
       retries: 5
     networks:
-      - authentik_default
+      - default
 volumes:
   database:
     driver: local
 networks:
-  authentik_default:
+  default:
     driver: bridge
-    name: authentik_default
   npm_default:
     external: true
   postgresql_default:

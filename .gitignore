@@ -35,3 +35,11 @@ stacks/mealie/data/
 
 # Kopia
 stacks/kopia/google-drive-key.json
+
+# VaultWarden
+stacks/vaultwarden/vw-data/
+
+# Authentik
+stacks/authentik/certs
+stacks/authentik/custom-templates/
+stacks/authentik/data/
