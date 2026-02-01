@@ -17,7 +17,7 @@ services:
       # 2. normal : ID/PW only
       # 3. oauth2 : OAUTH2 only
       # ------------------------------
-      SECURITY_LOGINMETHOD: all
+      SECURITY_LOGINMETHOD: oauth2
       SECURITY_ENABLE_LOGIN: true
       SECURITY_INITIALLOGIN_USERNAME: ${STIRLING_ADMIN_ID}
       SECURITY_INITIALLOGIN_PASSWORD: ${STIRLING_ADMIN_PASSWORD}

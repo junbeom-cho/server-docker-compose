@@ -40,6 +40,9 @@ stacks/kopia/google-drive-key.json
 stacks/vaultwarden/vw-data/
 
 # Authentik
-stacks/authentik/certs
+stacks/authentik/certs/
 stacks/authentik/custom-templates/
 stacks/authentik/data/
+
+# Kopia
+stacks/kopia/app/

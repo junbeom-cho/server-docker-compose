@@ -1,32 +1,35 @@
 services:
-    kopia:
-        image: kopia/kopia:latest
-        hostname: Hostname
-        container_name: Kopia
-        restart: unless-stopped
-        ports:
-            - 51515:51515
-        # Setup the server that provides the web gui
-        command:
-            - server
-            - start
-            - --disable-csrf-token-checks
-            - --insecure
-            - --address=0.0.0.0:51515
-            - --server-username=USERNAME
-            - --server-password=SECRET_PASSWORD
-        environment:
-            # Set repository password
-            KOPIA_PASSWORD: "SECRET"
-            USER: "User"
-        volumes:
-            # Mount local folders needed by kopia
-            - /path/to/config/dir:/app/config
-            - /path/to/cache/dir:/app/cache
-            - /path/to/logs/dir:/app/logs
-            # Mount local folders to snapshot
-            - /path/to/data/dir:/data:ro
-            # Mount repository location
-            - /path/to/repository/dir:/repository
-            # Mount path for browsing mounted snapshots
-            - /path/to/tmp/dir:/tmp:shared
+  kopia:
+    image: kopia/kopia:latest
+    hostname: ${HOSTNAME:-KopiaServer}
+    container_name: Kopia
+    restart: unless-stopped
+    ports:
+      - 51515:51515
+    command:
+      - server
+      - start
+      - --disable-csrf-token-checks
+      - --insecure
+      - --address=0.0.0.0:51515
+      - --server-username=${KOPIA_ADMIN}
+      - --server-password=${KOPIA_ADMIN_PASSWORD}
+    environment:
+      KOPIA_PASSWORD: ${KOPIA_REPOSITORY_PASSWORD}
+      USER: junbeom-cho
+      TZ: Asia/Seoul
+      RCLONE_CONFIG: /app/config/rclone.conf
+    volumes:
+      # --- Default Volumes ---
+      - ./app/config:/app/config
+      - ./app/cache:/app/cache
+      - ./app/logs:/app/logs
+      # --- 백업 대상 ---
+      - /opt:/data/opt:ro
+      # --- 스냅샷 마운트용 (복구 시 사용) ---
+      - /tmp:/tmp:shared
+    cap_add:
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse:/dev/fuse
+networks: {}
