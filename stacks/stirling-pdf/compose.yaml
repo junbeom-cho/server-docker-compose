@@ -10,13 +10,18 @@ services:
       - ./data/logs:/logs # Application logs
       - ./data/pipeline:/pipeline # Automation configs
     environment:
-      # -- Login Configuration --
-      # all, normal(only ID&PW), oauth2(only SSO
+      # --- Login Configuration ---
+      # ------------------------------
+      # SECURITY_LOGINMETHOD Option
+      # 1. all : ID/PW + OAUTH2
+      # 2. normal : ID/PW only
+      # 3. oauth2 : OAUTH2 only
+      # ------------------------------
       SECURITY_LOGINMETHOD: all
       SECURITY_ENABLE_LOGIN: true
       SECURITY_INITIALLOGIN_USERNAME: ${STIRLING_ADMIN_ID}
       SECURITY_INITIALLOGIN_PASSWORD: ${STIRLING_ADMIN_PASSWORD}
-      # -- OIDC Configuration --
+      # --- OIDC Configuration ---
       SECURITY_OAUTH2_ENABLED: true
       SECURITY_OAUTH2_ISSUER: https://${AUTHENTIK_DOMAIN}/application/o/${STIRLING_SLUGS}/
       SECURITY_OAUTH2_CLIENTID: ${STIRLING_CLIENT_ID}
@@ -26,9 +31,9 @@ services:
       SECURITY_OAUTH2_PROVIDER: authentik
       SECURITY_OAUTH2_AUTOCREATEUSER: false
       SECURITY_OAUTH2_BLOCKREGISTRATION: false
-      # -- UI Language Configuration --
+      # --- UI Language Configuration ---
       SYSTEM_DEFAULTLOCALE: ko-KR
-      # -- OCR Configuration --
+      # --- OCR Configuration ---
       INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
       LANGS: ko_KR,en_GB,zh_TW
     networks:
