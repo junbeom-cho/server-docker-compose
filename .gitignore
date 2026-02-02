@@ -46,3 +46,6 @@ stacks/authentik/data/
 
 # Kopia
 stacks/kopia/app/
+
+# Uptime Kuma
+stacks/uptime-kuma/data/

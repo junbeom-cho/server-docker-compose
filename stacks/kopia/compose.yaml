@@ -2,7 +2,7 @@ services:
   kopia:
     image: kopia/kopia:latest
     hostname: ${HOSTNAME:-KopiaServer}
-    container_name: Kopia
+    container_name: kopia
     restart: unless-stopped
     ports:
       - 51515:51515

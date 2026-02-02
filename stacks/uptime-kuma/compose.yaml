@@ -1,0 +1,33 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - 3002:3001
+    volumes:
+      - ./data:/app/data
+    environment:
+      - TZ=Asia/Seoul
+      - UMASK=0022
+    networks:
+      - npm_default
+      - postgresql_default
+      - dockge_default
+      - kopia_default
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - node test/health-check.js
+      interval: 1m
+      timeout: 10s
+      retries: 3
+networks:
+  npm_default:
+    external: true
+  postgresql_default:
+    external: true
+  dockge_default:
+    external: true
+  kopia_default:
+    external: true
