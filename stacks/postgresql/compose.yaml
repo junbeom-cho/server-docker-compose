@@ -12,7 +12,7 @@ services:
       - ./data:/var/lib/postgresql
       - ./init-db:/docker-entrypoint-initdb.d
     ports:
-      - 5432:5432
+      - 12002:5432
     healthcheck:
       test:
         - CMD-SHELL

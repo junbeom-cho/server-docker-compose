@@ -12,8 +12,8 @@ services:
       AUTHENTIK_SECRET_KEY: ${AUTHENTIK_SECRET_KEY}
     image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2025.12.1}
     ports:
-      - 9000:9000
-      - 9443:9443
+      - 11000:9000
+      - 11001:9443
     restart: unless-stopped
     volumes:
       - ./data:/data

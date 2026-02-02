@@ -5,7 +5,7 @@ services:
     container_name: kopia
     restart: unless-stopped
     ports:
-      - 51515:51515
+      - 14000:51515
     command:
       - server
       - start

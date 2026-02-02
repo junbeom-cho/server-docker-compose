@@ -5,7 +5,7 @@ services:
     pull_policy: always
     restart: unless-stopped
     ports:
-      - 8081:8080
+      - 12001:8080
     networks:
       - npm_default
 networks:
