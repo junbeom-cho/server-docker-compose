@@ -4,12 +4,35 @@ services:
     container_name: homepage
     restart: unless-stopped
     ports:
-      - 13000:3000
+      - "13000:3000"
     volumes:
-      - ./config:/app/config
+      - ./config:/app/config:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
+      TZ: Asia/Seoul
       HOMEPAGE_ALLOWED_HOSTS: "*"
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "curl", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - dockge_default
       - npm_default

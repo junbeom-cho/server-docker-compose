@@ -5,7 +5,25 @@ services:
     pull_policy: always
     restart: unless-stopped
     ports:
-      - 12001:8080
+      - "12001:8080"
+    environment:
+      TZ: Asia/Seoul
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - npm_default
 networks:

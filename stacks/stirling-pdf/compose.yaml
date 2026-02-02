@@ -2,43 +2,55 @@ services:
   stirling-pdf:
     image: stirlingtools/stirling-pdf:latest
     container_name: stirling-pdf
+    restart: unless-stopped
     ports:
       - 13001:8080
     volumes:
-      - ./data/tessdata:/usr/share/tessdata # OCR language files
-      - ./data/configs:/configs # Settings & database
-      - ./data/logs:/logs # Application logs
-      - ./data/pipeline:/pipeline # Automation configs
+      - ./data/tessdata:/usr/share/tessdata:rw
+      - ./data/configs:/configs:rw
+      - ./data/logs:/logs:rw
+      - ./data/pipeline:/pipeline:rw
     environment:
-      # --- Login Configuration ---
-      # ------------------------------
-      # SECURITY_LOGINMETHOD Option
-      # 1. all : ID/PW + OAUTH2
-      # 2. normal : ID/PW only
-      # 3. oauth2 : OAUTH2 only
-      # ------------------------------
-      SECURITY_LOGINMETHOD: oauth2
-      SECURITY_ENABLE_LOGIN: true
-      SECURITY_INITIALLOGIN_USERNAME: ${STIRLING_ADMIN_ID}
-      SECURITY_INITIALLOGIN_PASSWORD: ${STIRLING_ADMIN_PASSWORD}
-      # --- OIDC Configuration ---
-      SECURITY_OAUTH2_ENABLED: true
-      SECURITY_OAUTH2_ISSUER: https://${AUTHENTIK_DOMAIN}/application/o/${STIRLING_SLUGS}/
-      SECURITY_OAUTH2_CLIENTID: ${STIRLING_CLIENT_ID}
-      SECURITY_OAUTH2_CLIENTSECRET: ${STIRLING_CLIENT_SECRET}
-      SECURITY_OAUTH2_SCOPES: openid,profile,email
-      SECURITY_OAUTH2_USEASUSERNAME: preferred_username
-      SECURITY_OAUTH2_PROVIDER: authentik
-      SECURITY_OAUTH2_AUTOCREATEUSER: false
-      SECURITY_OAUTH2_BLOCKREGISTRATION: false
-      # --- UI Language Configuration ---
+      # Security & Authentication
+      SECURITY_ENABLELOGIN: false
+      # Localization
       SYSTEM_DEFAULTLOCALE: ko-KR
-      # --- OCR Configuration ---
-      INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
       LANGS: ko_KR,en_GB,zh_TW
+      # Features
+      INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
+      # System Configuration
+      DOCKER_ENABLE_SECURITY: false
+      SYSTEM_ROOTURIPATH: /
+      SYSTEM_CUSTOMSTATICFILEPATH: /customFiles/
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - --no-verbose
+        - --tries=1
+        - --spider
+        - http://localhost:8080/api/v1/info/status
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "2.0"
+        reservations:
+          memory: 512M
+          cpus: "0.5"
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
     networks:
       - npm_default
-    restart: unless-stopped
 networks:
   npm_default:
     external: true
