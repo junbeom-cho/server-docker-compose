@@ -4,9 +4,18 @@ services:
     image: dbeaver/cloudbeaver:latest
     restart: unless-stopped
     volumes:
-      - ./data:/opt/cloudbeaver/workspace
+      - ./data:/opt/cloudbeaver/workspace:rw
     ports:
-      - 12000:8978
+      - "12000:8978"
+    environment:
+      TZ: Asia/Seoul
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - postgresql_default
 networks:

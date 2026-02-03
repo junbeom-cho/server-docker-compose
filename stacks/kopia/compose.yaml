@@ -2,7 +2,7 @@ services:
   kopia:
     image: kopia/kopia:latest
     hostname: ${HOSTNAME:-KopiaServer}
-    container_name: Kopia
+    container_name: kopia
     restart: unless-stopped
     ports:
       - 14000:51515
@@ -18,12 +18,12 @@ services:
       KOPIA_PASSWORD: ${KOPIA_REPOSITORY_PASSWORD}
       USER: junbeom-cho
       TZ: Asia/Seoul
+      RCLONE_CONFIG: /app/config/rclone.conf
     volumes:
       # --- Default Volumes ---
       - ./app/config:/app/config
       - ./app/cache:/app/cache
       - ./app/logs:/app/logs
-
       # --- 백업 대상 ---
       - /opt:/data/opt:ro
       # --- 스냅샷 마운트용 (복구 시 사용) ---
