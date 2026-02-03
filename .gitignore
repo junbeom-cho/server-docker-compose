@@ -17,6 +17,8 @@ dockge/data/
 
 # PostgreSQL
 stacks/postgresql/data/
+stacks/postgresql/logs/
+stacks/postgresql/full_backup_latest.sql
 
 # CloudBeaver
 stacks/cloudbeaver/data/
