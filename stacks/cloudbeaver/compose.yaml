@@ -6,18 +6,21 @@ services:
     volumes:
       - ./data:/opt/cloudbeaver/workspace:rw
     ports:
-      - "12000:8978"
+      - 12000:8978
     environment:
       TZ: Asia/Seoul
     security_opt:
       - no-new-privileges:true
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
     networks:
       - postgresql_default
+      - npm_default
 networks:
   postgresql_default:
+    external: true
+  npm_default:
     external: true

@@ -24,7 +24,10 @@ stacks/postgresql/full_backup_latest.sql
 stacks/cloudbeaver/data/
 
 # Homepage
-stacks/homepage/config/
+stacks/homepage/user_config/logs/
+stacks/homepage/admin_config/logs/
+!stacks/homepage/user_config/
+!stacks/homepage/admin_config/
 
 # Stirling PDF
 stacks/stirling-pdf/data/

@@ -1,0 +1,40 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/services/
+
+- Mornitoring:
+    - Uptime Kuma:
+        href: https://kuma.junbeom.work/status/junbeom-server
+        description: "서비스 상태 모니터링"
+        icon: uptime-kuma.svg
+    - Dozzle:
+        href: https://dozzle.junbeom.work/
+        description: "로그 모니터링"
+        icon: dozzle.svg
+
+- Security:
+    - VaultWarden:
+        href: https://vault.junbeom.work/
+        description: "비밀번호 관리"
+        icon: vaultwarden-light.svg
+    - Authentik:
+        href: https://auth.junbeom.work/
+        description: "2단계 인증 및 SSO"
+        icon: authentik.svg
+
+- Development:
+    - IT-Tools:
+        href: https://it-tools.junbeom.work/
+        description: "개발자 도구 모음"
+        icon: it-tools-light.svg
+
+
+- Productivity:
+    - Mealie:
+        href: https://mealie.junbeom.work/
+        description: "레시피 관리"
+        icon: mealie.svg
+    - Stirling-PDF:
+        href: https://stirling-pdf.junbeom.work/
+        description: "PDF 만능 도구 (병합, 분할, 변환 등) / 100MB 이상의 큰 파일은 관리자에게 문의주세요."
+        icon: stirling-pdf.svg

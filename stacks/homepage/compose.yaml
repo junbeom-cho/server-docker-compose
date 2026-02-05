@@ -1,37 +1,64 @@
 services:
-  homepage:
+  user_homepage:
     image: ghcr.io/gethomepage/homepage:latest
-    container_name: homepage
+    container_name: user_homepage
     restart: unless-stopped
     ports:
-      - "13000:3000"
+      - 13000:3000
     volumes:
-      - ./config:/app/config:rw
+      - ./user_config:/app/config:rw
+      - ./icons:/app/config/icons:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       TZ: Asia/Seoul
+      PUID: 1000
+      PGID: 988
       HOMEPAGE_ALLOWED_HOSTS: "*"
       NODE_ENV: production
-    healthcheck:
-      test: ["CMD", "curl", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
     deploy:
       resources:
         limits:
           memory: 256M
-          cpus: '0.5'
+          cpus: "0.5"
         reservations:
           memory: 64M
-          cpus: '0.1'
-    security_opt:
-      - no-new-privileges:true
+          cpus: "0.1"
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - dockge_default
+      - npm_default
+  admin_homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: admin_homepage
+    restart: unless-stopped
+    ports:
+      - 13004:3000
+    volumes:
+      - ./admin_config:/app/config:rw
+      - ./icons:/app/config/icons:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      TZ: Asia/Seoul
+      PUID: 1000
+      PGID: 988
+      HOMEPAGE_ALLOWED_HOSTS: "*"
+      NODE_ENV: production
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+        reservations:
+          memory: 64M
+          cpus: "0.1"
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
         max-file: "3"
     networks:
       - dockge_default
