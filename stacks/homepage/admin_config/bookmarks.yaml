@@ -2,17 +2,24 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/bookmarks
 
-- Developer:
+- Development:
     - Github:
         - abbr: GH
           href: https://github.com/
+          icon: github-light.svg
 
-- Social:
-    - Reddit:
-        - abbr: RE
-          href: https://reddit.com/
+- Useful:
+    - Gitignore.io:
+        - href: https://www.toptal.com/developers/gitignore
+          icon: git.svg
+    - Dashboard Icons:
+        - href: https://dashboardicons.com/
+          icon: dashboard-icons.svg
 
-- Entertainment:
+- Media:
     - YouTube:
-        - abbr: YT
-          href: https://youtube.com/
+        - href: https://www.youtube.com/
+          icon: youtube.svg
+    - Netflix:
+        - href: https://www.netflix.com/
+          icon: netflix.svg
