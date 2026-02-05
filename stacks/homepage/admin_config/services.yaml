@@ -2,17 +2,50 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/configs/services/
 
-- My First Group:
-    - My First Service:
-        href: http://localhost/
-        description: Homepage is awesome
+- Infrastructure:
+    - NPM+:
+        href: http://192.168.50.200:10001
+        description: "Reverse Proxy 및 SSL 관리"
+        icon: nginx-proxy-manager.svg
+    - Dockge:
+        href: http://192.168.50.200:10000
+        description: "도커 컨테이너 관리"
+        icon: dockge.svg
 
-- My Second Group:
-    - My Second Service:
-        href: http://localhost/
-        description: Homepage is the best
+- Security:
+    - Authentik:
+        href: http://192.168.50.200:11000/if/admin/
+        description: "2단계 인증 및 SSO"
+        icon: authentik.svg
+    - VaultWarden:
+        href: http://192.168.50.200:11002/admin/
+        description: "비밀번호 관리자"
+        icon: vaultwarden-light.svg
+    
+- Monitoring:
+    - Uptime Kuma:
+        href: http://192.168.50.200:10004
+        description: "서비스 상태 모니터링"
+        icon: uptime-kuma.svg
+    - Dozzle:
+        href: http://192.168.50.200:10005
+        description: "로그 모니터링"
+        icon: dozzle.svg
 
-- My Third Group:
-    - My Third Service:
-        href: http://localhost/
-        description: Homepage is 😎
+- Development:
+    - CloudBeaver:
+        href: http://192.168.50.200:12000
+        description: "데이터베이스 관리"
+        icon: cloudbeaver.svg
+
+- Storage:
+    - Kopia:
+        href: http://192.168.50.200:14000
+        description: "백업 관리"
+        icon: kopia.svg
+
+- Productivity:
+    - Mealie:
+        href: http://192.168.50.200:13002/admin/site-settings/
+        description: "레시피 관리"
+        icon: mealie.svg

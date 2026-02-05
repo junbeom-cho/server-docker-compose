@@ -1,4 +1,4 @@
-lservices:
+services:
   vaultwarden:
     image: vaultwarden/server:latest
     container_name: vaultwarden
@@ -30,7 +30,11 @@ lservices:
     ports:
       - 11002:80
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/alive"]
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:80/alive
       interval: 30s
       timeout: 10s
       retries: 3
