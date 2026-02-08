@@ -1,0 +1,27 @@
+services:
+  server:
+    image: codeberg.org/forgejo/forgejo:13
+    container_name: forgejo
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      FORGEJO__database__DB_TYPE: postgres
+      FORGEJO__database__HOST: ${PG_HOST}:${PG_PORT}
+      FORGEJO__database__NAME: ${PG_FORGEJO_DATABASE}
+      FORGEJO__database__USER: ${PG_FORGEJO_USER}
+      FORGEJO__database__PASSWD: ${PG_FORGEJO_USER_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - npm_default
+      - postgresql_default
+    volumes:
+      - ./data:/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - 12003:3000
+      - 12004:22
+networks:
+  npm_default:
+    external: true
+  postgresql_default:
+    external: true
