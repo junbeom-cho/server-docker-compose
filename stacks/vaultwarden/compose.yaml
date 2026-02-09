@@ -14,7 +14,7 @@ services:
       SSO_CLIENT_SECRET: ${VAULT_CLIENT_SECRET}
       SSO_SCOPES: openid email profile offline_access
       SSO_ALLOW_UNKNOWN_EMAIL_VERIFICATION: false
-      SSO_CLIENT_CACHE_EXPIRATION: 0
+      # SSO_CLIENT_CACHE_EXPIRATION: 0
       SSO_ONLY: true
       SSO_SIGNUPS_MATCH_EMAIL: false
       # Security Settings
@@ -25,6 +25,16 @@ services:
       WEB_VAULT_ENABLED: true
       WEBSOCKET_ENABLED: true
       ROCKET_WORKERS: 10
+      # SMTP
+      SMTP_HOST: smtp.resend.com
+      SMTP_FROM: vault@junbeom.work
+      SMTP_FROM_NAME: My Vault
+      SMTP_PORT: 587
+      SMTP_SECURITY: starttls
+      SMTP_USERNAME: resend
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_TIMEOUT: 30
+      SMTP_DEBUG: true
     volumes:
       - ./vw-data/:/data/:rw
     ports:
