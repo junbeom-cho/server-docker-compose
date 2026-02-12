@@ -1,0 +1,62 @@
+services:
+  # Shlink Core Backend (API & Redirect Engine)
+  shlink-backend:
+    image: shlinkio/shlink:stable
+    container_name: shlink-backend
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Seoul
+      # 도메인 설정 (단축 URL에 사용될 도메인)
+      - DEFAULT_DOMAIN=${SHLINK_DOMAIN}
+      - IS_HTTPS_ENABLED=true
+      # 데이터베이스 설정 (External Postgres)
+      - DB_DRIVER=postgres
+      - DB_USER=${PG_SHLINK_USER}
+      - DB_PASSWORD=${PG_SHLINK_USER_PASSWORD}
+      - DB_NAME=${PG_SHLINK_DATABASE}
+      - DB_HOST=postgresql # postgresql_default 네트워크상의 호스트명
+      # Redis 설정
+      - REDIS_SERVERS=tcp://shlink-redis:6379
+      # GeoLite2 (선택사항, 없으면 IP 추적 제한됨)
+      - GEOLITE_LICENSE_KEY=${GEOLITE_KEY}
+    depends_on:
+      - shlink-redis
+    ports:
+      - 12005:8080 # Backend Port
+    networks:
+      - shlink_default # Redis 통신
+      - npm_default # NPM 연결 (단축 URL 접속용)
+      - postgresql_default # DB 연결
+  # Redis (Cache & Locks)
+  shlink-redis:
+    image: redis:7-alpine
+    container_name: shlink-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - ./data/redis:/data
+    networks:
+      - shlink_default
+  # Shlink Web Client (Admin UI)
+  shlink-web:
+    image: shlinkio/shlink-web-client:stable
+    container_name: shlink-web
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Seoul
+      # 웹 UI 접속 시 기본으로 Backend 서버 정보를 입력해둠
+      - SHLINK_SERVER_URL=https://${SHLINK_DOMAIN}
+      - SHLINK_SERVER_API_KEY=${SHLINK_API_KEY} # 최초 실행 후 생성된 키 입력 필요
+    ports:
+      - 12006:8080 # Web UI Port
+    networks:
+      - npm_default
+      - shlink_default
+networks:
+  shlink_default:
+    name: shlink_default
+    driver: bridge
+  npm_default:
+    external: true
+  postgresql_default:
+    external: true

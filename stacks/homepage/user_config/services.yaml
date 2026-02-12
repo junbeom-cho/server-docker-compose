@@ -17,6 +17,12 @@
         description: "개발자 도구 모음"
         icon: it-tools-light.svg
 
+- Storage:
+    - Paperless-NGX:
+        href: https://paperless.junbeom.work/
+        description: "문서 관리"
+        icon: paperless-ngx.svg
+
 
 - Productivity:
     - Mealie:

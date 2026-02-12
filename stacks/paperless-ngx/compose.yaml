@@ -1,84 +1,83 @@
-# Docker Compose file for running paperless from the docker container registry.
-# This file contains everything paperless needs to run.
-# Paperless supports amd64, arm and arm64 hardware.
-#
-# All compose files of paperless configure paperless in the following way:
-#
-# - Paperless is (re)started on system boot, if it was running before shutdown.
-# - Docker volumes for storing data are managed by Docker.
-# - Folders for importing and exporting files are created in the same directory
-#   as this file and mounted to the correct folders inside the container.
-# - Paperless listens on port 8000.
-#
-# In addition to that, this Docker Compose file adds the following optional
-# configurations:
-#
-# - Instead of SQLite (default), PostgreSQL is used as the database server.
-# - Apache Tika and Gotenberg servers are started with paperless and paperless
-#   is configured to use these services. These provide support for consuming
-#   Office documents (Word, Excel, PowerPoint and their LibreOffice counter-
-#   parts).
-#
-# To install and update paperless with this file, do the following:
-#
-# - Copy this file as 'docker-compose.yml' and the files 'docker-compose.env'
-#   and '.env' into a folder.
-# - Run 'docker compose pull'.
-# - Run 'docker compose up -d'.
-#
-# For more extensive installation and update instructions, refer to the
-# documentation.
 services:
-  broker:
-    image: docker.io/library/redis:8
-    restart: unless-stopped
-    volumes:
-      - ./redisdata:/data
-  db:
-    image: docker.io/library/postgres:18
-    restart: unless-stopped
-    volumes:
-      - pgdata:/var/lib/postgresql
-    environment:
-      POSTGRES_DB: paperless
-      POSTGRES_USER: paperless
-      POSTGRES_PASSWORD: paperless
   webserver:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless-webserver
     restart: unless-stopped
     depends_on:
-      - db
       - broker
       - gotenberg
       - tika
     ports:
-      - "8000:8000"
+      - 13003:8000
     volumes:
-      - data:/usr/src/paperless/data
-      - media:/usr/src/paperless/media
-      - ./export:/usr/src/paperless/export
-      - ./consume:/usr/src/paperless/consume
-    env_file: docker-compose.env
+      - /opt/stacks/paperless-ngx/data/data:/usr/src/paperless/data
+      - /opt/stacks/paperless-ngx/data/media:/usr/src/paperless/media
+      - /opt/stacks/paperless-ngx/data/export:/usr/src/paperless/export
+      - /opt/stacks/paperless-ngx/data/consume:/usr/src/paperless/consume
     environment:
-      PAPERLESS_REDIS: redis://broker:6379
-      PAPERLESS_DBHOST: db
-      PAPERLESS_TIKA_ENABLED: 1
-      PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
-      PAPERLESS_TIKA_ENDPOINT: http://tika:9998
-  gotenberg:
-    image: docker.io/gotenberg/gotenberg:8.25
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Seoul
+      # --- [기본 설정] ---
+      - PAPERLESS_URL=https://paperless.junbeom.work
+      - PAPERLESS_ALLOWED_HOSTS=*
+      - PAPERLESS_CORS_ALLOWED_HOSTS=https://paperless.junbeom.work
+      # --- [데이터베이스 (Shared DB)] ---
+      - PAPERLESS_DBHOST=postgresql
+      - PAPERLESS_DBPORT=5432
+      - PAPERLESS_DBNAME=${PG_PAPERLESS_DATABASE}
+      - PAPERLESS_DBUSER=${PG_PAPERLESS_USER}
+      - PAPERLESS_DBPASS=${PG_PAPERLESS_USER_PASSWORD}
+      # --- [Redis] ---
+      - PAPERLESS_REDIS=redis://broker:6379
+      # --- [OCR 및 언어] ---
+      - PAPERLESS_OCR_LANGUAGES=kor eng
+      - PAPERLESS_OCR_LANGUAGE=kor
+      # --- [Tika & Gotenberg] ---
+      - PAPERLESS_TIKA_ENABLED=1
+      - PAPERLESS_TIKA_GOTENBERG_ENDPOINT=http://gotenberg:3000
+      - PAPERLESS_TIKA_ENDPOINT=http://tika:9998
+      # --- [★ 핵심: Authentik SSO 연동 설정] ---
+      # 1. Remote User 인증 활성화 (Authentik 헤더 신뢰)
+      - PAPERLESS_ENABLE_HTTP_REMOTE_USER=true
+      # 2. Authentik이 보내줄 헤더 이름 (NPM/Authentik 설정과 일치해야 함)
+      - PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME=HTTP_X_AUTHENTIK_USERNAME
+      # 3. 로그아웃 시 리다이렉트 (선택사항, UX 향상)
+      # - PAPERLESS_LOGOUT_REDIRECT_URL=https://auth.domain.com
+
+    networks:
+      - npm_default # 외부 접속 (NPM -> Authentik -> Paperless)
+      - postgresql_default # DB 접속
+      - paperless_default # 내부 통신
+  broker:
+    image: docker.io/library/redis:7
+    container_name: paperless-redis
     restart: unless-stopped
-    # The gotenberg chromium route is used to convert .eml files. We do not
-    # want to allow external content like tracking pixels or even javascript.
+    volumes:
+      - /opt/stacks/paperless-ngx/data/redis:/data
+    networks:
+      - paperless_default
+  gotenberg:
+    image: docker.io/gotenberg/gotenberg:8
+    container_name: paperless-gotenberg
+    restart: unless-stopped
     command:
-      - "gotenberg"
-      - "--chromium-disable-javascript=true"
-      - "--chromium-allow-list=file:///tmp/.*"
+      - gotenberg
+      - --chromium-disable-javascript=true
+      - --chromium-allow-list=file:///tmp/.*
+    networks:
+      - paperless_default
   tika:
     image: docker.io/apache/tika:latest
+    container_name: paperless-tika
     restart: unless-stopped
-volumes:
-  data:
-  media:
-  pgdata:
-  redisdata:
+    networks:
+      - paperless_default
+networks:
+  paperless_default:
+    name: paperless_default
+    driver: bridge
+  npm_default:
+    external: true
+  postgresql_default:
+    external: true

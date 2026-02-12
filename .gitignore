@@ -54,3 +54,13 @@ stacks/kopia/app/
 
 # Uptime Kuma
 stacks/uptime-kuma/data/
+
+# Shlink
+stacks/shlink/data/
+
+# Paperless-NGX
+stacks/paperless-ngx/data/
+
+# Scrutiny
+stacks/scrutiny/config/
+stacks/scrutiny/influxdb/
