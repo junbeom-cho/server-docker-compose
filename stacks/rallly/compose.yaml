@@ -1,0 +1,36 @@
+services:
+  rallly:
+    image: lukevella/rallly:latest
+    restart: always
+    container_name: rallly
+    ports:
+      - 13004:3000
+    environment:
+      ## Normal Configuration
+      - DATABASE_URL=postgres://rallly_user:${PG_RALLLY_USER_PASSWORD}@postgresql:5432/rallly_db
+      - SECRET_PASSWORD=${RALLLY_SECRET}
+      - NEXT_PUBLIC_BASE_URL=https://rallly.junbeom.work
+      - SUPPORT_EMAIL=rallly@junbeom.work
+      ## Auth & Emails
+      - ALLOWED_EMAILS=dev.junbeom@gmail.com
+      - AUTH_REQUIRED=true
+      - NEXTAUTH_URL=https://rallly.junbeom.work
+      - AUTH_TRUST_HOST=true
+      - REGISTRATION_ENABLED=false
+      ## SMTP Configuration (Resend)
+      - SMTP_HOST=smtp.resend.com
+      - SMTP_PORT=587
+      - SMTP_SECURE=false
+      - SMTP_REJECT_UNAUTHORIZED=true
+      - SMTP_USER=resend
+      - SMTP_PWD=${RESEND_RALLLY_API_KEY} # [중요] 문서에 따른 정확한 변수명
+      - NOREPLY_EMAIL=rallly@junbeom.work # [변경] MAIL_FROM -> NOREPLY_EMAIL
+      - NOREPLY_EMAIL_NAME=Rallly # [옵션] 발신자 이름 설정
+    networks:
+      - npm_default
+      - postgresql_default
+networks:
+  npm_default:
+    external: true
+  postgresql_default:
+    external: true

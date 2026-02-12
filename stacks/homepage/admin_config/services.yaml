@@ -73,3 +73,7 @@
         href: http://192.168.50.200:13001
         description: "PDF 관리"
         icon: stirling-pdf.svg
+    - Rallly:
+        href: https://rallly.junbeom.work
+        description: "이벤트 계획 및 일정 관리"
+        icon: rallly.svg
