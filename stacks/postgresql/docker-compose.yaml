@@ -7,10 +7,10 @@ services:
       - .env
     environment:
       # Authentication
-      POSTGRES_PASSWORD: ${PG_ROOT_PASSWORD}
+      - POSTGRES_PASSWORD=${PG_ROOT_PASSWORD}
       # Localization
-      TZ: Asia/Seoul
-      LANG: en_US.utf8
+      - TZ=Asia/Seoul
+      - LANG=en_US.utf8
     command: >
       postgres -c shared_buffers=256MB -c effective_cache_size=1GB -c
       maintenance_work_mem=128MB -c checkpoint_completion_target=0.9 -c

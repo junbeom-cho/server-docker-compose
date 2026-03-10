@@ -6,8 +6,8 @@ services:
     ports:
       - 13005:80
     environment:
-      PGID: 1000
-      PUID: 1000
+      - PGID=1000
+      - PUID=1000
     volumes:
       - ./data/database:/database
       - ./data/config:/config

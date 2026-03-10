@@ -15,10 +15,10 @@ services:
       - --server-username=${KOPIA_ADMIN}
       - --server-password=${KOPIA_ADMIN_PASSWORD}
     environment:
-      KOPIA_PASSWORD: ${KOPIA_REPOSITORY_PASSWORD}
-      USER: junbeom-cho
-      TZ: Asia/Seoul
-      RCLONE_CONFIG: /app/config/rclone.conf
+      - KOPIA_PASSWORD=${KOPIA_REPOSITORY_PASSWORD}
+      - USER=junbeom-cho
+      - TZ=Asia/Seoul
+      - RCLONE_CONFIG=/app/config/rclone.conf
     volumes:
       # --- Default Volumes ---
       - ./app/config:/app/config

@@ -12,17 +12,17 @@ services:
       - ./data/pipeline:/pipeline:rw
     environment:
       # Security & Authentication
-      SECURITY_ENABLELOGIN: false
+      - SECURITY_ENABLELOGIN=false
       # Localization
-      SYSTEM_DEFAULTLOCALE: ko_KR
-      OCR_LANGS: kor,eng,chi_tra
+      - SYSTEM_DEFAULTLOCALE=ko_KR
+      - OCR_LANGS=kor,eng,chi_tra
       # Features
-      INSTALL_BOOK_AND_ADVANCED_HTML_OPS: false
+      - INSTALL_BOOK_AND_ADVANCED_HTML_OPS=false
       # System Configuration
-      STIRLING_PDF_PROCESS_TIMEOUT_MINUTES: 120
-      DOCKER_ENABLE_SECURITY: false
-      SYSTEM_ROOTURIPATH: /
-      SYSTEM_CUSTOMSTATICFILEPATH: /customFiles/
+      - STIRLING_PDF_PROCESS_TIMEOUT_MINUTES=120
+      - DOCKER_ENABLE_SECURITY=false
+      - SYSTEM_ROOTURIPATH=/
+      - SYSTEM_CUSTOMSTATICFILEPATH=/customFiles/
     deploy:
       resources:
         limits:

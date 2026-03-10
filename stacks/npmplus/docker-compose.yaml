@@ -11,14 +11,14 @@ services:
     networks:
       - npm_default
     environment:
-      TZ: Asia/Seoul
-      PUID: 1000
-      PGID: 1000
+      - TZ=Asia/Seoul
+      - PUID=1000
+      - PGID=1000
       # --- CrowdSec ---
-      LOGROTATE: true
-      LOGROTATIONS: 7
+      - LOGROTATE=true
+      - LOGROTATIONS=7
       # --- Optimizer ---
-      DISABLE_IPV6: true
+      - DISABLE_IPV6=true
     volumes:
       - ./data:/data
   crowdsec:
@@ -30,9 +30,9 @@ services:
     networks:
       - npm_default
     environment:
-      TZ: Asia/Seoul
-      COLLECTIONS: crowdsecurity/nginx-proxy-manager
-      GID: 1000
+      - TZ=Asia/Seoul
+      - COLLECTIONS=crowdsecurity/nginx-proxy-manager
+      - GID=1000
     volumes:
       - ./crowdsec/conf:/etc/crowdsec
       - ./crowdsec/data:/var/lib/crowdsec/data

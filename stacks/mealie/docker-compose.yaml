@@ -12,28 +12,28 @@ services:
     volumes:
       - ./data:/app/data/
     environment:
-      OIDC_AUTH_ENABLED: true
-      OIDC_PROVIDER_NAME: authentik
-      OIDC_SIGNUP_ENABLED: true
-      OIDC_CONFIGURATION_URL: https://${AUTHENTIK_DOMAIN}/application/o/${MEALIE_SLUGS}/.well-known/openid-configuration
-      OIDC_CLIENT_ID: ${MEALIE_CLIENT_ID}
-      OIDC_CLIENT_SECRET: ${MEALIE_CLIENT_SECRET}
-      OIDC_USER_GROUP: ${MEALIE_USER_GROUP}
-      OIDC_ADMIN_GROUP: ${MEALIE_ADMIN_GROUP}
-      OIDC_AUTO_REDIRECT: false
-      OIDC_REMEMBER_ME: true
-      ALLOW_PASSWORD_LOGIN: false
-      ALLOW_SIGNUP: false
-      PUID: 1000
-      PGID: 1000
-      TZ: Asiz/Seoul
-      BASE_URL: https://mealie.junbeom.work
-      DB_ENGINE: postgres
-      POSTGRES_USER: ${PG_MEALIE_USER}
-      POSTGRES_PASSWORD: ${PG_MEALIE_PASSWORD}
-      POSTGRES_SERVER: postgresql
-      POSTGRES_PORT: ${PG_MEALIE_PORT}
-      POSTGRES_DB: ${PG_MEALIE_DATABASE}
+      - OIDC_AUTH_ENABLED=true
+      - OIDC_PROVIDER_NAME=authentik
+      - OIDC_SIGNUP_ENABLED=true
+      - OIDC_CONFIGURATION_URL=https://${AUTHENTIK_DOMAIN}/application/o/${MEALIE_SLUGS}/.well-known/openid-configuration
+      - OIDC_CLIENT_ID=${MEALIE_CLIENT_ID}
+      - OIDC_CLIENT_SECRET=${MEALIE_CLIENT_SECRET}
+      - OIDC_USER_GROUP=${MEALIE_USER_GROUP}
+      - OIDC_ADMIN_GROUP=${MEALIE_ADMIN_GROUP}
+      - OIDC_AUTO_REDIRECT=false
+      - OIDC_REMEMBER_ME=true
+      - ALLOW_PASSWORD_LOGIN=false
+      - ALLOW_SIGNUP=false
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asiz/Seoul
+      - BASE_URL=https://mealie.junbeom.work
+      - DB_ENGINE=postgres
+      - POSTGRES_USER=${PG_MEALIE_USER}
+      - POSTGRES_PASSWORD=${PG_MEALIE_PASSWORD}
+      - POSTGRES_SERVER=postgresql
+      - POSTGRES_PORT=${PG_MEALIE_PORT}
+      - POSTGRES_DB=${PG_MEALIE_DATABASE}
     networks:
       - npm_default
       - postgresql_default
