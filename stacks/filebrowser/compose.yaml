@@ -1,0 +1,19 @@
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:v2.61.2-s6
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - 13005:80
+    environment:
+      PGID: 1000
+      PUID: 1000
+    volumes:
+      - ./data/database:/database
+      - ./data/config:/config
+      - ./srv:/srv
+    networks:
+      - npm_default
+networks:
+  npm_default:
+    external: true

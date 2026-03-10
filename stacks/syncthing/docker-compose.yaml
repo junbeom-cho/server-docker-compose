@@ -1,0 +1,25 @@
+services:
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:2.0.15
+    container_name: syncthing
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Seoul
+    volumes:
+      - ./config:/config
+      - ./data1:/data1
+      - ./data2:/data2
+      - /home/junbeom/obsidian-vault:/obsidian-vault
+    ports:
+      - 13006:8384
+      - 13007:22000/tcp
+      - 13007:22000/udp
+      - 13008:21027/udp
+    healthcheck:
+      test: curl -fkLsS -m 2 127.0.0.1:8384/rest/noauth/health | grep -o --color=never OK || exit 1
+      interval: 1m
+      timeout: 10s
+      retries: 3
+networks: {}
