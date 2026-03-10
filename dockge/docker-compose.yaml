@@ -1,7 +1,11 @@
+# ==================================================
+# Dockge : Docker Compose 스택 관리 웹 UI
+# ==================================================
+
 services:
   dockge:
+    image: louislam/dockge:1.5.0
     container_name: dockge
-    image: louislam/dockge:1
     restart: unless-stopped
     ports:
       - 10000:5001
@@ -10,13 +14,20 @@ services:
       - ./data:/app/data
       - /opt/stacks:/opt/stacks
     environment:
+      # Dockge가 감시하고 관리할 스택 디렉터리 경로
       - DOCKGE_STACKS_DIR=/opt/stacks
+# ==================================================
+# 헬스체크
+# ==================================================
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5001"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
     deploy:
       resources:
         limits:
@@ -25,15 +36,21 @@ services:
         reservations:
           cpus: "0.5"
           memory: 256M
+# ==================================================
+# 로그 설정
+# ==================================================
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
         labels: "service=dockge"
     networks:
       - npm_default
+
+# ==================================================
+# 네트워크 설정
+# ==================================================
 networks:
   npm_default:
     external: true
-
