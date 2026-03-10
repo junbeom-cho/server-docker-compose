@@ -1,3 +1,7 @@
+# ==================================================
+# PostgreSQL : 공용 데이터베이스 서버
+# ==================================================
+
 services:
   postgresql:
     image: postgres:17
@@ -5,12 +9,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    environment:
-      # Authentication
-      - POSTGRES_PASSWORD=${PG_ROOT_PASSWORD}
-      # Localization
-      - TZ=Asia/Seoul
-      - LANG=en_US.utf8
+    ports:
+      - 12002:5432
     command: >
       postgres -c shared_buffers=256MB -c effective_cache_size=1GB -c
       maintenance_work_mem=128MB -c checkpoint_completion_target=0.9 -c
@@ -22,8 +22,19 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data:rw
       - ./init-db:/docker-entrypoint-initdb.d:ro
-    ports:
-      - 12002:5432
+    environment:
+      # PostgreSQL 슈퍼유저 비밀번호
+      - POSTGRES_PASSWORD=${PG_ROOT_PASSWORD}
+      # 컨테이너 내부 표준 시간대
+      - TZ=Asia/Seoul
+      # 컨테이너 기본 로케일
+      - LANG=en_US.utf8
+    security_opt:
+      - no-new-privileges:true
+    shm_size: 256mb
+# ==================================================
+# 헬스체크
+# ==================================================
     healthcheck:
       test:
         - CMD-SHELL
@@ -32,6 +43,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
     deploy:
       resources:
         limits:
@@ -40,16 +54,22 @@ services:
         reservations:
           memory: 512M
           cpus: "0.5"
-    security_opt:
-      - no-new-privileges:true
-    shm_size: 256mb
+# ==================================================
+# 로그 설정
+# ==================================================
     logging:
       driver: json-file
       options:
-        max-size: 10m
+        max-size: "10m"
         max-file: "3"
+        labels: "service=postgresql"
     networks:
-      - default
+      - postgresql_default
+
+# ==================================================
+# 네트워크 설정
+# ==================================================
 networks:
   postgresql_default:
-    external: false
+    name: postgresql_default
+    driver: bridge

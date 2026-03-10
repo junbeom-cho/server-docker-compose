@@ -1,3 +1,7 @@
+# ==================================================
+# File Browser : 웹 기반 파일 탐색기
+# ==================================================
+
 services:
   filebrowser:
     image: filebrowser/filebrowser:v2.61.2-s6
@@ -5,15 +9,50 @@ services:
     restart: unless-stopped
     ports:
       - 13005:80
-    environment:
-      - PGID=1000
-      - PUID=1000
     volumes:
       - ./data/database:/database
       - ./data/config:/config
       - ./srv:/srv
+    environment:
+      # 컨테이너 프로세스 실행 그룹 GID
+      - PGID=1000
+      # 컨테이너 프로세스 실행 사용자 UID
+      - PUID=1000
+# ==================================================
+# 헬스체크
+# ==================================================
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+        reservations:
+          memory: 64M
+          cpus: "0.1"
+# ==================================================
+# 로그 설정
+# ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=filebrowser"
     networks:
       - npm_default
+
+# ==================================================
+# 네트워크 설정
+# ==================================================
 networks:
   npm_default:
     external: true

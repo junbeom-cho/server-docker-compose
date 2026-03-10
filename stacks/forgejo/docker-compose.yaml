@@ -1,25 +1,69 @@
+# ==================================================
+# Forgejo : 자체 호스팅 Git 서비스
+# ==================================================
+
 services:
   server:
     image: codeberg.org/forgejo/forgejo:13
     container_name: forgejo
-    environment:
-      - USER_UID=1000
-      - USER_GID=1000
-      - FORGEJO__database__DB_TYPE=postgres
-      - FORGEJO__database__HOST=${PG_HOST}:${PG_PORT}
-      - FORGEJO__database__NAME=${PG_FORGEJO_DATABASE}
-      - FORGEJO__database__USER=${PG_FORGEJO_USER}
-      - FORGEJO__database__PASSWD=${PG_FORGEJO_USER_PASSWORD}
     restart: unless-stopped
-    networks:
-      - npm_default
-      - postgresql_default
-    volumes:
-      - ./data:/data
-      - /etc/localtime:/etc/localtime:ro
     ports:
       - 12003:3000
       - 12004:22
+    volumes:
+      - ./data:/data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      # 컨테이너 프로세스 실행 사용자 UID
+      - USER_UID=1000
+      # 컨테이너 프로세스 실행 그룹 GID
+      - USER_GID=1000
+      # Forgejo 데이터베이스 드라이버
+      - FORGEJO__database__DB_TYPE=postgres
+      # Forgejo 데이터베이스 호스트:포트
+      - FORGEJO__database__HOST=${PG_HOST}:${PG_PORT}
+      # Forgejo 데이터베이스 이름
+      - FORGEJO__database__NAME=${PG_FORGEJO_DATABASE}
+      # Forgejo 데이터베이스 사용자명
+      - FORGEJO__database__USER=${PG_FORGEJO_USER}
+      # Forgejo 데이터베이스 비밀번호
+      - FORGEJO__database__PASSWD=${PG_FORGEJO_USER_PASSWORD}
+# ==================================================
+# 헬스체크
+# ==================================================
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+        reservations:
+          memory: 256M
+          cpus: "0.25"
+# ==================================================
+# 로그 설정
+# ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=forgejo"
+    networks:
+      - npm_default
+      - postgresql_default
+
+# ==================================================
+# 네트워크 설정
+# ==================================================
 networks:
   npm_default:
     external: true

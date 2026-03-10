@@ -1,23 +1,56 @@
+# ==================================================
+# CloudBeaver : 웹 기반 데이터베이스 관리 도구
+# ==================================================
+
 services:
   cloudbeaver:
-    container_name: cloudbeaver
     image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver
     restart: unless-stopped
-    volumes:
-      - ./data:/opt/cloudbeaver/workspace:rw
     ports:
       - 12000:8978
+    volumes:
+      - ./data:/opt/cloudbeaver/workspace:rw
     environment:
+      # 컨테이너 내부 표준 시간대
       - TZ=Asia/Seoul
+# ==================================================
+# 헬스체크
+# ==================================================
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8978"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+        reservations:
+          memory: 128M
+          cpus: "0.25"
     security_opt:
       - no-new-privileges:true
+# ==================================================
+# 로그 설정
+# ==================================================
     logging:
       driver: json-file
       options:
-        max-size: 10m
+        max-size: "10m"
         max-file: "3"
+        labels: "service=cloudbeaver"
     networks:
       - postgresql_default
+
+# ==================================================
+# 네트워크 설정
+# ==================================================
 networks:
   postgresql_default:
     external: true

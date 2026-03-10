@@ -1,14 +1,54 @@
+# ==================================================
+# Dozzle : Docker 컨테이너 로그 실시간 뷰어
+# ==================================================
+
 services:
   dozzle:
     image: amir20/dozzle:latest
     container_name: dozzle
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
     ports:
       - 10005:8080
-    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # 로그 타임스탬프 및 UI 표시 기준 시간대
+      - TZ=Asia/Seoul
+# ==================================================
+# 헬스체크
+# ==================================================
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+# ==================================================
+# 로그 설정
+# ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=dozzle"
     networks:
       - npm_default
+
+# ==================================================
+# 네트워크 설정
+# ==================================================
 networks:
   npm_default:
     external: true

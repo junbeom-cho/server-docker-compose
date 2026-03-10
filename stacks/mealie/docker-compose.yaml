@@ -1,3 +1,7 @@
+# ==================================================
+# Mealie : 레시피/식단 관리 서비스
+# ==================================================
+
 services:
   mealie:
     image: ghcr.io/mealie-recipes/mealie:latest
@@ -5,40 +9,92 @@ services:
     restart: unless-stopped
     ports:
       - 13002:9000
+    volumes:
+      - ./data:/app/data/
+    environment:
+      # OIDC 로그인 활성화 여부
+      - OIDC_AUTH_ENABLED=true
+      # OIDC 공급자 표시 이름
+      - OIDC_PROVIDER_NAME=authentik
+      # OIDC 기반 가입 허용 여부
+      - OIDC_SIGNUP_ENABLED=true
+      # OIDC 메타데이터(OpenID Configuration) URL
+      - OIDC_CONFIGURATION_URL=https://${AUTHENTIK_DOMAIN}/application/o/${MEALIE_SLUGS}/.well-known/openid-configuration
+      # OIDC 클라이언트 ID
+      - OIDC_CLIENT_ID=${MEALIE_CLIENT_ID}
+      # OIDC 클라이언트 시크릿
+      - OIDC_CLIENT_SECRET=${MEALIE_CLIENT_SECRET}
+      # 일반 사용자로 매핑할 그룹명
+      - OIDC_USER_GROUP=${MEALIE_USER_GROUP}
+      # 관리자 권한으로 매핑할 그룹명
+      - OIDC_ADMIN_GROUP=${MEALIE_ADMIN_GROUP}
+      # 접속 시 OIDC 자동 리다이렉트 여부
+      - OIDC_AUTO_REDIRECT=false
+      # 로그인 유지(Remember me) 사용 여부
+      - OIDC_REMEMBER_ME=true
+      # 로컬 비밀번호 로그인 허용 여부
+      - ALLOW_PASSWORD_LOGIN=false
+      # 자체 회원가입 허용 여부
+      - ALLOW_SIGNUP=false
+      # 컨테이너 프로세스 실행 사용자 UID
+      - PUID=1000
+      # 컨테이너 프로세스 실행 그룹 GID
+      - PGID=1000
+      # 컨테이너 내부 표준 시간대
+      - TZ=Asia/Seoul
+      # 외부 접근 기준 URL
+      - BASE_URL=https://mealie.junbeom.work
+      # 데이터베이스 엔진 종류
+      - DB_ENGINE=postgres
+      # PostgreSQL 사용자명
+      - POSTGRES_USER=${PG_MEALIE_USER}
+      # PostgreSQL 비밀번호
+      - POSTGRES_PASSWORD=${PG_MEALIE_PASSWORD}
+      # PostgreSQL 호스트명
+      - POSTGRES_SERVER=postgresql
+      # PostgreSQL 포트
+      - POSTGRES_PORT=${PG_MEALIE_PORT}
+      # PostgreSQL 데이터베이스 이름
+      - POSTGRES_DB=${PG_MEALIE_DATABASE}
+# ==================================================
+# 헬스체크
+# ==================================================
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
     deploy:
       resources:
         limits:
           memory: 1000M
-    volumes:
-      - ./data:/app/data/
-    environment:
-      - OIDC_AUTH_ENABLED=true
-      - OIDC_PROVIDER_NAME=authentik
-      - OIDC_SIGNUP_ENABLED=true
-      - OIDC_CONFIGURATION_URL=https://${AUTHENTIK_DOMAIN}/application/o/${MEALIE_SLUGS}/.well-known/openid-configuration
-      - OIDC_CLIENT_ID=${MEALIE_CLIENT_ID}
-      - OIDC_CLIENT_SECRET=${MEALIE_CLIENT_SECRET}
-      - OIDC_USER_GROUP=${MEALIE_USER_GROUP}
-      - OIDC_ADMIN_GROUP=${MEALIE_ADMIN_GROUP}
-      - OIDC_AUTO_REDIRECT=false
-      - OIDC_REMEMBER_ME=true
-      - ALLOW_PASSWORD_LOGIN=false
-      - ALLOW_SIGNUP=false
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asiz/Seoul
-      - BASE_URL=https://mealie.junbeom.work
-      - DB_ENGINE=postgres
-      - POSTGRES_USER=${PG_MEALIE_USER}
-      - POSTGRES_PASSWORD=${PG_MEALIE_PASSWORD}
-      - POSTGRES_SERVER=postgresql
-      - POSTGRES_PORT=${PG_MEALIE_PORT}
-      - POSTGRES_DB=${PG_MEALIE_DATABASE}
+          cpus: "1.0"
+        reservations:
+          memory: 256M
+          cpus: "0.25"
+# ==================================================
+# 로그 설정
+# ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "service=mealie"
     networks:
       - npm_default
       - postgresql_default
+
 volumes:
   mealie-data: null
+
+# ==================================================
+# 네트워크 설정
+# ==================================================
 networks:
   npm_default:
     external: true

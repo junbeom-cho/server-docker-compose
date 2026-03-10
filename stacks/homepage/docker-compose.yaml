@@ -1,3 +1,7 @@
+# ==================================================
+# Homepage : 사용자/관리자 대시보드
+# ==================================================
+
 services:
   user_homepage:
     image: ghcr.io/gethomepage/homepage:latest
@@ -10,11 +14,28 @@ services:
       - ./icons:/app/config/icons:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
+      # 컨테이너 내부 표준 시간대
       - TZ=Asia/Seoul
+      # 컨테이너 프로세스 실행 사용자 UID
       - PUID=1000
+      # 컨테이너 프로세스 실행 그룹 GID
       - PGID=988
+      # 접근 허용 Host 헤더 목록 ("*"는 모든 호스트)
       - HOMEPAGE_ALLOWED_HOSTS="*"
+      # Node.js 실행 모드 (프로덕션 최적화)
       - NODE_ENV=production
+# ==================================================
+# 헬스체크
+# ==================================================
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
     deploy:
       resources:
         limits:
@@ -23,14 +44,19 @@ services:
         reservations:
           memory: 64M
           cpus: "0.1"
+# ==================================================
+# 로그 설정
+# ==================================================
     logging:
       driver: json-file
       options:
-        max-size: 10m
+        max-size: "10m"
         max-file: "3"
+        labels: "service=user_homepage"
     networks:
       - dockge_default
       - npm_default
+
   admin_homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: admin_homepage
@@ -42,11 +68,28 @@ services:
       - ./icons:/app/config/icons:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
+      # 컨테이너 내부 표준 시간대
       - TZ=Asia/Seoul
+      # 컨테이너 프로세스 실행 사용자 UID
       - PUID=1000
+      # 컨테이너 프로세스 실행 그룹 GID
       - PGID=988
+      # 접근 허용 Host 헤더 목록 ("*"는 모든 호스트)
       - HOMEPAGE_ALLOWED_HOSTS="*"
+      # Node.js 실행 모드 (프로덕션 최적화)
       - NODE_ENV=production
+# ==================================================
+# 헬스체크
+# ==================================================
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+# ==================================================
+# 리소스 제한 - 필요시 조정
+# ==================================================
     deploy:
       resources:
         limits:
@@ -55,14 +98,22 @@ services:
         reservations:
           memory: 64M
           cpus: "0.1"
+# ==================================================
+# 로그 설정
+# ==================================================
     logging:
       driver: json-file
       options:
-        max-size: 10m
+        max-size: "10m"
         max-file: "3"
+        labels: "service=admin_homepage"
     networks:
       - dockge_default
       - npm_default
+
+# ==================================================
+# 네트워크 설정
+# ==================================================
 networks:
   dockge_default:
     external: true
