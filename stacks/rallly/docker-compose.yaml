@@ -48,7 +48,13 @@ services:
 # 헬스체크
 # ==================================================
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      test:
+        - CMD
+        - wget
+        - --quiet
+        - --tries=1
+        - --spider
+        - http://localhost:3000
       interval: 30s
       timeout: 10s
       retries: 3
@@ -70,13 +76,12 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
-        labels: "service=rallly"
+        labels: service=rallly
     networks:
       - npm_default
       - postgresql_default
-
 # ==================================================
 # 네트워크 설정
 # ==================================================

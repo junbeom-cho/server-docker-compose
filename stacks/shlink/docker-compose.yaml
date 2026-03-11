@@ -12,6 +12,7 @@ services:
     environment:
       # 컨테이너 내부 표준 시간대
       - TZ=Asia/Seoul
+      - MULTI_SEGMENT_SLUGS_ENABLED=true
       # 생성되는 단축 URL의 기본 도메인
       - DEFAULT_DOMAIN=${SHLINK_DOMAIN}
       # 단축 URL 생성 시 HTTPS 사용 여부
@@ -32,22 +33,22 @@ services:
       - GEOLITE_LICENSE_KEY=${GEOLITE_KEY}
     depends_on:
       - shlink-redis
-# ==================================================
-# 헬스체크
-# ==================================================
+    # ==================================================
+    # 헬스체크
+    # ==================================================
     healthcheck:
       test:
         - CMD
         - php
         - -r
-        - '$c=@fsockopen("127.0.0.1", 8080); if (!$c) { exit(1); } fclose($c);'
+        - $c=@fsockopen("127.0.0.1", 8080); if (!$c) { exit(1); } fclose($c);
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
-# ==================================================
-# 리소스 제한 - 필요시 조정
-# ==================================================
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
     deploy:
       resources:
         limits:
@@ -56,20 +57,19 @@ services:
         reservations:
           memory: 1G
           cpus: "0.25"
-# ==================================================
-# 로그 설정
-# ==================================================
+    # ==================================================
+    # 로그 설정
+    # ==================================================
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
-        labels: "service=shlink-backend"
+        labels: service=shlink-backend
     networks:
       - shlink_default
       - npm_default
       - postgresql_default
-
   shlink-redis:
     image: redis:7-alpine
     container_name: shlink-redis
@@ -77,18 +77,21 @@ services:
     command: redis-server --save 60 1 --loglevel warning
     volumes:
       - ./data/redis:/data
-# ==================================================
-# 헬스체크
-# ==================================================
+    # ==================================================
+    # 헬스체크
+    # ==================================================
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test:
+        - CMD
+        - redis-cli
+        - ping
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
-# ==================================================
-# 리소스 제한 - 필요시 조정
-# ==================================================
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
     deploy:
       resources:
         limits:
@@ -97,18 +100,17 @@ services:
         reservations:
           memory: 64M
           cpus: "0.1"
-# ==================================================
-# 로그 설정
-# ==================================================
+    # ==================================================
+    # 로그 설정
+    # ==================================================
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
-        labels: "service=shlink-redis"
+        labels: service=shlink-redis
     networks:
       - shlink_default
-
   shlink-web:
     image: shlinkio/shlink-web-client:stable
     container_name: shlink-web
@@ -122,18 +124,24 @@ services:
       - SHLINK_SERVER_URL=https://${SHLINK_DOMAIN}
       # 웹 UI에서 사용할 Shlink API 키
       - SHLINK_SERVER_API_KEY=${SHLINK_API_KEY}
-# ==================================================
-# 헬스체크
-# ==================================================
+    # ==================================================
+    # 헬스체크
+    # ==================================================
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      test:
+        - CMD
+        - wget
+        - --quiet
+        - --tries=1
+        - --spider
+        - http://localhost:8080
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 20s
-# ==================================================
-# 리소스 제한 - 필요시 조정
-# ==================================================
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
     deploy:
       resources:
         limits:
@@ -142,19 +150,18 @@ services:
         reservations:
           memory: 64M
           cpus: "0.1"
-# ==================================================
-# 로그 설정
-# ==================================================
+    # ==================================================
+    # 로그 설정
+    # ==================================================
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
-        labels: "service=shlink-web"
+        labels: service=shlink-web
     networks:
       - npm_default
       - shlink_default
-
 # ==================================================
 # 네트워크 설정
 # ==================================================
