@@ -15,6 +15,7 @@ services:
     volumes:
       - ./config:/config
       - /home/junbeom/obsidian-vault:/obsidian-vault
+      - /home/junbeom/blog-vault:/blog-vault
     environment:
       # 컨테이너 프로세스 실행 사용자 UID
       - PUID=1000

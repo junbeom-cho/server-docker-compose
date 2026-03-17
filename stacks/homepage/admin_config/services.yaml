@@ -68,9 +68,10 @@
         description: "나만의 드라이브"
         icon: filebrowser.svg
     - Syncthing:
-        href: http://192.168.50:200:13006
+        href: http://192.168.50.200:13006
         description: "프로젝트 실시간 동기화"
         icon: syncthing.svg
+
 - Productivity:
     - Mealie:
         href: http://192.168.50.200:13002
