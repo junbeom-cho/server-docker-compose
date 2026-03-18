@@ -4,7 +4,12 @@ services:
     container_name: obsidian-blog
     restart: unless-stopped
     ports:
-      - "10007:80"
+      - 10007:80
     volumes:
-      # 주의: username 부분을 Ubuntu 서버의 실제 사용자 계정명으로 변경하세요!
-      - /home/junbeom/quartz-blog/public:/usr/share/nginx/html:ro
+      - /home/junbeom/quartz-blog:/usr/share/nginx/html:ro
+      - /home/junbeom/quartz-blog/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - npm_default
+networks:
+  npm_default:
+    external: true
