@@ -9,7 +9,7 @@ services:
   # Avg Memory: 420MB
   # ==================================================
   server:
-    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2026.2.1}
+    image: ghcr.io/goauthentik/server:2026.2.1
     container_name: authentik_server
     command: server
     restart: unless-stopped
@@ -67,7 +67,7 @@ services:
   # Avg Memory: 500MB
   # ==================================================
   worker:
-    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2026.2.1}
+    image: ghcr.io/goauthentik/server:2026.2.1
     container_name: authentik_worker
     command: worker
     restart: unless-stopped
