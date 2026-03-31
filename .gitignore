@@ -64,3 +64,6 @@ stacks/paperless-ngx/data/
 # Scrutiny
 stacks/scrutiny/config/
 stacks/scrutiny/influxdb/
+
+# Tugtainer
+stacks/tugtainer/tugtainer_data/
