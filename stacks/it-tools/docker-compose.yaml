@@ -1,20 +1,22 @@
 # ==================================================
 # IT-Tools : 개발/운영용 웹 유틸리티 모음
+# Avg CPU: 0.5 ~ 1%
+# Avg Memory: 100MB
 # ==================================================
 
 services:
   it-tools:
-    image: ghcr.io/sharevb/it-tools:nightly
+    image: ghcr.io/sharevb/it-tools:latest
     container_name: it-tools
     pull_policy: always
     restart: unless-stopped
     ports:
       - 12001:8080
     environment:
-      # 컨테이너 내부 표준 시간대
       - TZ=Asia/Seoul
-      # Node.js 실행 모드 (프로덕션 최적화)
       - NODE_ENV=production
+    networks:
+      - npm_default
     # ==================================================
     # 헬스체크
     # ==================================================
@@ -36,13 +38,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
           cpus: "0.5"
-        reservations:
-          memory: 64M
-          cpus: "0.1"
-    security_opt:
-      - no-new-privileges:true
+          memory: 256M
     # ==================================================
     # 로그 설정
     # ==================================================
@@ -52,8 +49,6 @@ services:
         max-size: 10m
         max-file: "3"
         labels: service=it-tools
-    networks:
-      - npm_default
 # ==================================================
 # 네트워크 설정
 # ==================================================
