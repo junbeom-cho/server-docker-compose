@@ -4,7 +4,7 @@
 
 services:
   server:
-    image: codeberg.org/forgejo/forgejo:13
+    image: codeberg.org/forgejo/forgejo:14
     container_name: forgejo
     restart: unless-stopped
     ports:
@@ -28,6 +28,9 @@ services:
       - FORGEJO__database__USER=${PG_FORGEJO_USER}
       # Forgejo 데이터베이스 비밀번호
       - FORGEJO__database__PASSWD=${PG_FORGEJO_USER_PASSWORD}
+    networks:
+      - npm_default
+      - postgresql_default
 # ==================================================
 # 헬스체크
 # ==================================================
@@ -45,9 +48,6 @@ services:
         limits:
           memory: 1G
           cpus: "1.0"
-        reservations:
-          memory: 256M
-          cpus: "0.25"
 # ==================================================
 # 로그 설정
 # ==================================================
@@ -57,9 +57,6 @@ services:
         max-size: "10m"
         max-file: "3"
         labels: "service=forgejo"
-    networks:
-      - npm_default
-      - postgresql_default
 
 # ==================================================
 # 네트워크 설정
