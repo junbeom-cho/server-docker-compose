@@ -1,0 +1,30 @@
+services:
+  pingvin-share-x:
+    container_name: pingvin-share-x
+    image: smp46/pingvin-share-x
+    restart: unless-stopped
+    ports:
+      - 12007:3000
+      - 12008:8080
+    environment:
+      - TRUST_PROXY=true
+      - CLAMAV_HOST=clamav
+    volumes:
+      - ./data:/opt/app/backend/data:rw,z
+      - ./data/images:/opt/app/frontend/public/img:rw,z
+    networks:
+      - npm_default
+      - pingving-share-default
+    depends_on:
+      clamav:
+        condition: service_healthy
+  clamav:
+    container_name: clamav
+    image: clamav/clamav
+    restart: unless-stopped
+    networks:
+      - pingving-share-default
+networks:
+  pingving-share-default: {}
+  npm_default:
+    external: true

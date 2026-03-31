@@ -33,3 +33,7 @@
         href: https://stirling-pdf.junbeom.work/
         description: "PDF 만능 도구 (병합, 분할, 변환 등) / 100MB 이상의 큰 파일은 관리자에게 문의주세요."
         icon: stirling-pdf.svg
+    - Pingvin-Share-X:
+        href: https://pingvin-share.junbeom.work
+        description: "파일 공유 도구"
+        icon: pingvin-share.svg

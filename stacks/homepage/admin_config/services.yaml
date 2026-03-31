@@ -85,3 +85,7 @@
         href: https://rallly.junbeom.work
         description: "이벤트 계획 및 일정 관리"
         icon: rallly.svg
+    - Pingvin-Share-X:
+        href: http://192.168.50.200:12007
+        description: "파일 공유 도구"
+        icon: pingvin-share.svg
