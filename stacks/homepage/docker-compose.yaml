@@ -24,18 +24,24 @@ services:
       - HOMEPAGE_ALLOWED_HOSTS="*"
       # Node.js 실행 모드 (프로덕션 최적화)
       - NODE_ENV=production
-# ==================================================
-# 헬스체크
-# ==================================================
+    # ==================================================
+    # 헬스체크
+    # ==================================================
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      test:
+        - CMD
+        - wget
+        - --quiet
+        - --tries=1
+        - --spider
+        - http://localhost:3000
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
-# ==================================================
-# 리소스 제한 - 필요시 조정
-# ==================================================
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
     deploy:
       resources:
         limits:
@@ -44,19 +50,18 @@ services:
         reservations:
           memory: 64M
           cpus: "0.1"
-# ==================================================
-# 로그 설정
-# ==================================================
+    # ==================================================
+    # 로그 설정
+    # ==================================================
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
-        labels: "service=user_homepage"
+        labels: service=user_homepage
     networks:
       - dockge_default
       - npm_default
-
   admin_homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: admin_homepage
@@ -78,18 +83,24 @@ services:
       - HOMEPAGE_ALLOWED_HOSTS="*"
       # Node.js 실행 모드 (프로덕션 최적화)
       - NODE_ENV=production
-# ==================================================
-# 헬스체크
-# ==================================================
+    # ==================================================
+    # 헬스체크
+    # ==================================================
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      test:
+        - CMD
+        - wget
+        - --quiet
+        - --tries=1
+        - --spider
+        - http://localhost:3000
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
-# ==================================================
-# 리소스 제한 - 필요시 조정
-# ==================================================
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
     deploy:
       resources:
         limits:
@@ -98,19 +109,19 @@ services:
         reservations:
           memory: 64M
           cpus: "0.1"
-# ==================================================
-# 로그 설정
-# ==================================================
+    # ==================================================
+    # 로그 설정
+    # ==================================================
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
-        labels: "service=admin_homepage"
+        labels: service=admin_homepage
     networks:
       - dockge_default
       - npm_default
-
+      
 # ==================================================
 # 네트워크 설정
 # ==================================================
