@@ -1,10 +1,15 @@
 # ==================================================
-# Authentik : SSO/IDP 인증 서버
+# Authentik : SSO 및 ID 관리 솔루션
 # ==================================================
 
 services:
+  # ==================================================
+  # Authentik 서버
+  # Avg CPU: 1 ~ 5%
+  # Avg Memory: 420MB
+  # ==================================================
   server:
-    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2025.12.1}
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2026.2.1}
     container_name: authentik_server
     command: server
     restart: unless-stopped
@@ -27,42 +32,42 @@ services:
       - AUTHENTIK_POSTGRESQL__USER=${PG_AUTHENTIK_USER}
       # 세션/암호화용 시크릿 키
       - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
-# ==================================================
-# 헬스체크
-# ==================================================
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/-/health/live/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-# ==================================================
-# 리소스 제한 - 필요시 조정
-# ==================================================
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: "1.0"
-        reservations:
-          memory: 256M
-          cpus: "0.25"
-# ==================================================
-# 로그 설정
-# ==================================================
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-        labels: "service=authentik-server"
+      - AUTHENTIK_REDIS__HOST=authentik_redis
+    depends_on:
+      redis:
+        condition: service_healthy
     networks:
       - npm_default
       - postgresql_default
       - default
+    # ==================================================
+    # 헬스체크 - authentik_worker와 통합
+    # ==================================================
 
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=authentik-server
+  # ==================================================
+  # Authentik 워커
+  # Avg CPU: 0.5 ~ 2%
+  # Avg Memory: 500MB
+  # ==================================================
   worker:
-    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2025.12.1}
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2026.2.1}
     container_name: authentik_worker
     command: worker
     restart: unless-stopped
@@ -85,39 +90,57 @@ services:
       - AUTHENTIK_POSTGRESQL__USER=${PG_AUTHENTIK_USER}
       # 세션/암호화용 시크릿 키
       - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
-# ==================================================
-# 리소스 제한 - 필요시 조정
-# ==================================================
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: "1.0"
-        reservations:
-          memory: 256M
-          cpus: "0.25"
-# ==================================================
-# 로그 설정
-# ==================================================
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-        labels: "service=authentik-worker"
+      - AUTHENTIK_REDIS__HOST=authentik_redis
+    depends_on:
+      redis:
+        condition: service_healthy
     networks:
       - npm_default
       - postgresql_default
       - default
-
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - ak healthcheck
+      start_period: 40s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "1.5G"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=authentik-worker
+  # ==================================================
+  # Authentik Redis
+  # Avg CPU: 0.5 ~ 2%
+  # Avg Memory: 10MB
+  # ==================================================
   redis:
     image: redis:alpine
     container_name: authentik_redis
     command: --save 60 1 --loglevel warning
     restart: unless-stopped
-# ==================================================
-# 헬스체크
-# ==================================================
+    networks:
+      - default
+    # ==================================================
+    # 헬스체크
+    # ==================================================
     healthcheck:
       test:
         - CMD-SHELL
@@ -126,33 +149,23 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-# ==================================================
-# 리소스 제한 - 필요시 조정
-# ==================================================
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
     deploy:
       resources:
         limits:
+          cpus: "1.0"
           memory: 256M
-          cpus: "0.5"
-        reservations:
-          memory: 64M
-          cpus: "0.1"
-# ==================================================
-# 로그 설정
-# ==================================================
+    # ==================================================
+    # 로그 설정
+    # ==================================================
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: 10m
         max-file: "3"
-        labels: "service=authentik-redis"
-    networks:
-      - default
-
-volumes:
-  database:
-    driver: local
-
+        labels: service=authentik-redis
 # ==================================================
 # 네트워크 설정
 # ==================================================
