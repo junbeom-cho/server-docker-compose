@@ -3,6 +3,11 @@
 # ==================================================
 
 services:
+  # ==================================================
+  # 사용자용 Homepage
+  # Avg CPU: 0.5 ~ 1%
+  # Avg Memory: 100MB
+  # ==================================================
   user_homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: user_homepage
@@ -17,13 +22,16 @@ services:
       # 컨테이너 내부 표준 시간대
       - TZ=Asia/Seoul
       # 컨테이너 프로세스 실행 사용자 UID
-      - PUID=1000
+      - PUID=$PUID
       # 컨테이너 프로세스 실행 그룹 GID
-      - PGID=988
+      - PGID=$PGID
       # 접근 허용 Host 헤더 목록 ("*"는 모든 호스트)
-      - HOMEPAGE_ALLOWED_HOSTS="*"
+      - HOMEPAGE_ALLOWED_HOSTS=*
       # Node.js 실행 모드 (프로덕션 최적화)
       - NODE_ENV=production
+    networks:
+      - dockge_default
+      - npm_default
     # ==================================================
     # 헬스체크
     # ==================================================
@@ -45,11 +53,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
           cpus: "0.5"
-        reservations:
-          memory: 64M
-          cpus: "0.1"
+          memory: 512M
     # ==================================================
     # 로그 설정
     # ==================================================
@@ -59,9 +64,11 @@ services:
         max-size: 10m
         max-file: "3"
         labels: service=user_homepage
-    networks:
-      - dockge_default
-      - npm_default
+  # ==================================================
+  # 관리자용 Homepage
+  # Avg CPU: 0.5 ~ 1%
+  # Avg Memory: 100MB
+  # ==================================================
   admin_homepage:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: admin_homepage
@@ -76,13 +83,16 @@ services:
       # 컨테이너 내부 표준 시간대
       - TZ=Asia/Seoul
       # 컨테이너 프로세스 실행 사용자 UID
-      - PUID=1000
+      - PUID=$PUID
       # 컨테이너 프로세스 실행 그룹 GID
-      - PGID=988
+      - PGID=$PGID
       # 접근 허용 Host 헤더 목록 ("*"는 모든 호스트)
-      - HOMEPAGE_ALLOWED_HOSTS="*"
+      - HOMEPAGE_ALLOWED_HOSTS=*
       # Node.js 실행 모드 (프로덕션 최적화)
       - NODE_ENV=production
+    networks:
+      - dockge_default
+      - npm_default
     # ==================================================
     # 헬스체크
     # ==================================================
@@ -104,11 +114,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
           cpus: "0.5"
-        reservations:
-          memory: 64M
-          cpus: "0.1"
+          memory: 512M
     # ==================================================
     # 로그 설정
     # ==================================================
@@ -118,10 +125,6 @@ services:
         max-size: 10m
         max-file: "3"
         labels: service=admin_homepage
-    networks:
-      - dockge_default
-      - npm_default
-      
 # ==================================================
 # 네트워크 설정
 # ==================================================
