@@ -1,0 +1,166 @@
+# ==================================================
+# Shlink : URL 단축(백엔드/웹 UI/Redis)
+# ==================================================
+
+services:
+  # ==================================================
+  # Shlink 백엔드
+  # 평균 CPU : 0 ~ 1%
+  # 평균 메모리 : 800MB
+  # ==================================================
+  shlink-backend:
+    image: shlinkio/shlink:latest
+    container_name: shlink-backend
+    restart: unless-stopped
+    ports:
+      - 15005:8080
+    environment:
+      # 컨테이너 내부 표준 시간대
+      - TZ=Asia/Seoul
+      - MULTI_SEGMENT_SLUGS_ENABLED=true
+      # 생성되는 단축 URL의 기본 도메인
+      - DEFAULT_DOMAIN=${SHLINK_DOMAIN}
+      # 단축 URL 생성 시 HTTPS 사용 여부
+      - IS_HTTPS_ENABLED=true
+      # 데이터베이스 드라이버 종류 (PostgreSQL)
+      - DB_DRIVER=postgres
+      # PostgreSQL 사용자 계정
+      - DB_USER=${PG_SHLINK_USER}
+      # PostgreSQL 사용자 비밀번호
+      - DB_PASSWORD=${PG_SHLINK_USER_PASSWORD}
+      # PostgreSQL 데이터베이스 이름
+      - DB_NAME=${PG_SHLINK_DATABASE}
+      # PostgreSQL 호스트명 (postgresql_default 네트워크 서비스명)
+      - DB_HOST=postgresql
+      # Redis 연결 주소 (캐시/락)
+      - REDIS_SERVERS=tcp://shlink-redis:6379
+      # GeoLite2 라이선스 키 (IP 위치 통계 기능)
+      - GEOLITE_LICENSE_KEY=${GEOLITE_KEY}
+    depends_on:
+      - shlink-redis
+    networks:
+      - default
+      - postgresql-network
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test: curl --fail http://localhost:8080/rest/health || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: "1.0"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=shlink-backend
+  # ==================================================
+  # Shlink REDIS : 캐시/락 용도
+  # 평균 CPU : 0 ~ 0.5%
+  # 평균 메모리 : 50MB
+  # ==================================================
+  shlink-redis:
+    image: redis:7-alpine
+    container_name: shlink-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - /opt/data/shlink/redis:/data
+    networks:
+      - default
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=shlink-redis
+  # ==================================================
+  # Shlink 웹 UI
+  # 평균 CPU : 0 ~ 0.5%
+  # 평균 메모리 : 20MB
+  # ==================================================
+  shlink-web:
+    image: shlinkio/shlink-web-client:latest
+    container_name: shlink-web
+    restart: unless-stopped
+    ports:
+      - 15006:8080
+    environment:
+      # 컨테이너 내부 표준 시간대
+      - TZ=Asia/Seoul
+      # 웹 UI가 기본으로 연결할 Shlink 백엔드 URL
+      - SHLINK_SERVER_URL=https://${SHLINK_DOMAIN}
+      # 웹 UI에서 사용할 Shlink API 키
+      - SHLINK_SERVER_API_KEY=${SHLINK_API_KEY}
+    networks:
+      - default
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test: curl --fail http://localhost:8080 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=shlink-web
+# ==================================================
+# 네트워크 설정
+# ==================================================
+networks:
+  default:
+    name: shlink-network
+  postgresql-network:
+    external: true

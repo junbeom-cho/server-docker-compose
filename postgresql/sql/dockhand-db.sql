@@ -1,0 +1,3 @@
+CREATE USER dockhand_user WITH PASSWORD '${PG_DOCKHAND_USER_PASSWORD}';
+CREATE DATABASE dockhand_db OWNER dockhand_user;
+GRANT ALL PRIVILEGES ON DATABASE dockhand_db TO dockhand_user;

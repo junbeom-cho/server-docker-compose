@@ -1,0 +1,89 @@
+# ==================================================
+# Pingvin Share X : 파일 공유 및 관리 서비스
+# ==================================================
+
+services:
+  # ==================================================
+  # Pingvin Share X 웹서버
+  # 평균 CPU : 0 ~ 0.5%
+  # 평균 메모리 : 200MB
+  # ==================================================
+  pingvin-share-x:
+    container_name: pingvin-share-x
+    image: smp46/pingvin-share-x
+    restart: unless-stopped
+    ports:
+      - 13005:3000
+      - 13006:8080
+    environment:
+      - TRUST_PROXY=true
+      - CLAMAV_HOST=clamav
+    volumes:
+      - /opt/data/pingvin-share-x:/opt/app/backend/data:rw,z
+      - /opt/data/pingvin-share-x/images:/opt/app/frontend/public/img:rw,z
+    networks:
+      - default
+    depends_on:
+      clamav:
+        condition: service_healthy
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      disable: false
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=pingvin-share-x
+  # ==================================================
+  # ClamAV : 바이러스 스캐닝 서비스
+  # 평균 CPU : 0 ~ 0.5% (스캔 시 일시적 증가)
+  # 평균 메모리 : 1GB
+  # ==================================================
+  clamav:
+    container_name: clamav
+    image: clamav/clamav
+    restart: unless-stopped
+    networks:
+      - default
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      disable: false
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=clamav
+# ==================================================
+# 네트워크 설정
+# ==================================================
+networks:
+  default:
+    name: pingvin-share-x-network

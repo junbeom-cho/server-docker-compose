@@ -1,0 +1,179 @@
+# ==================================================
+# Authentik : SSO 및 ID 관리 솔루션
+# ==================================================
+
+services:
+  # ==================================================
+  # Authentik 서버
+  # Avg CPU: 1 ~ 5%
+  # Avg Memory: 420MB
+  # ==================================================
+  server:
+    image: ghcr.io/goauthentik/server:2026.2.1
+    container_name: authentik_server
+    command: server
+    restart: unless-stopped
+    ports:
+      - 11000:9000
+      - 11001:9443
+    volumes:
+      - /opt/data/authentik/data:/data
+      - /opt/data/authentik/custom-templates:/templates
+    environment:
+      # Authentik이 연결할 PostgreSQL 호스트명
+      - AUTHENTIK_POSTGRESQL__HOST=postgresql
+      # Authentik 데이터베이스 이름
+      - AUTHENTIK_POSTGRESQL__NAME=${PG_AUTHENTIK_DATABASE}
+      # Authentik 데이터베이스 비밀번호
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${PG_AUTHENTIK_PASSWORD}
+      # Authentik 데이터베이스 사용자명
+      - AUTHENTIK_POSTGRESQL__USER=${PG_AUTHENTIK_USER}
+      # 세션/암호화용 시크릿 키
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+      - AUTHENTIK_REDIS__HOST=authentik_redis
+      # Tugtainer 보호 라벨 설정
+    labels:
+      dev.quenary.tugtainer.protected: "true"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - default
+      - postgresql-network
+    # ==================================================
+    # 헬스체크 - authentik_worker와 통합
+    # ==================================================
+
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=authentik-server
+  # ==================================================
+  # Authentik 워커
+  # Avg CPU: 0.5 ~ 2%
+  # Avg Memory: 500MB
+  # ==================================================
+  worker:
+    image: ghcr.io/goauthentik/server:2026.2.1
+    container_name: authentik_worker
+    command: worker
+    restart: unless-stopped
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/data/authentik/data:/data
+      - /opt/data/authentik/certs:/certs
+      - /opt/data/authentik/custom-templates:/templates
+    environment:
+      # Authentik이 연결할 PostgreSQL 호스트명
+      - AUTHENTIK_POSTGRESQL__HOST=postgresql
+      # Authentik 데이터베이스 이름
+      - AUTHENTIK_POSTGRESQL__NAME=${PG_AUTHENTIK_DATABASE}
+      # Authentik 데이터베이스 비밀번호
+      - AUTHENTIK_POSTGRESQL__PASSWORD=${PG_AUTHENTIK_PASSWORD}
+      # Authentik 데이터베이스 사용자명
+      - AUTHENTIK_POSTGRESQL__USER=${PG_AUTHENTIK_USER}
+      # 세션/암호화용 시크릿 키
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
+      - AUTHENTIK_REDIS__HOST=authentik_redis
+      # Tugtainer 보호 라벨 설정
+    labels:
+      dev.quenary.tugtainer.protected: "true"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - default
+      - postgresql-network
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - ak healthcheck
+      start_period: 40s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1.5G
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=authentik-worker
+  # ==================================================
+  # Authentik Redis
+  # Avg CPU: 0.5 ~ 2%
+  # Avg Memory: 10MB
+  # ==================================================
+  redis:
+    image: redis:alpine
+    container_name: authentik_redis
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    # Tugtainer 보호 라벨 설정
+    labels:
+      dev.quenary.tugtainer.protected: "true"
+    networks:
+      - default
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli ping | grep PONG
+      start_period: 20s
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=authentik-redis
+# ==================================================
+# 네트워크 설정
+# ==================================================
+networks:
+  default:
+    name: authentik-network
+  postgresql-network:
+    external: true

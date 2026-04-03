@@ -1,0 +1,109 @@
+# ==================================================
+# Vaultwarden : Bitwarden 호환 비밀번호 관리자
+# 평균 CPU : 0.5% ~ 1%
+# 평균 메모리 : 100MB
+# ==================================================
+
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    ports:
+      - 11002:80
+    volumes:
+      - /opt/data/vaultwarden:/data/:rw
+    environment:
+      # 외부 접속 도메인 URL
+      - DOMAIN=https://${VAULT_DOMAIN}
+      # 관리자 페이지 접근 토큰
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      # SSO 로그인 기능 활성화 여부
+      - SSO_ENABLED=true
+      # SSO 인증 서버(Authentik) 엔드포인트
+      - SSO_AUTHORITY=https://${AUTHENTIK_DOMAIN}/application/o/${VAULT_SLUGS}/
+      # SSO OAuth 클라이언트 ID
+      - SSO_CLIENT_ID=${VAULT_CLIENT_ID}
+      # SSO OAuth 클라이언트 시크릿
+      - SSO_CLIENT_SECRET=${VAULT_CLIENT_SECRET}
+      # SSO 요청 스코프 목록
+      - SSO_SCOPES=openid email profile offline_access
+      # 미확인 이메일 계정의 로그인 허용 여부
+      - SSO_ALLOW_UNKNOWN_EMAIL_VERIFICATION=false
+      # 로컬 로그인 비활성화 후 SSO만 허용
+      - SSO_ONLY=true
+      # SSO 이메일과 기존 계정 이메일 자동 매칭 여부
+      - SSO_SIGNUPS_MATCH_EMAIL=false
+      # 신규 회원가입 허용 여부
+      - SIGNUPS_ALLOWED=false
+      # 초대 기반 사용자 생성 허용 여부
+      - INVITATIONS_ALLOWED=true
+      # 가입 시 이메일 인증 필수 여부
+      - SIGNUPS_VERIFY=true
+      # 비밀번호 힌트 표시 여부
+      - SHOW_PASSWORD_HINT=false
+      # 웹 볼트 UI 제공 여부
+      - WEB_VAULT_ENABLED=true
+      # 실시간 동기화용 WebSocket 활성화 여부
+      - WEBSOCKET_ENABLED=true
+      # Rocket 웹서버 워커 수
+      - ROCKET_WORKERS=10
+      # SMTP 서버 주소
+      - SMTP_HOST=smtp.resend.com
+      # 발신자 이메일 주소
+      - SMTP_FROM=vault@junbeom.work
+      # 발신자 표시 이름
+      - SMTP_FROM_NAME=My Vault
+      # SMTP 서버 포트
+      - SMTP_PORT=587
+      # SMTP 보안 프로토콜
+      - SMTP_SECURITY=starttls
+      # SMTP 인증 사용자명
+      - SMTP_USERNAME=resend
+      # SMTP 인증 비밀번호
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      # SMTP 연결 타임아웃(초)
+      - SMTP_TIMEOUT=30
+      # SMTP 디버그 로그 출력 여부
+      - SMTP_DEBUG=true
+      # Tugtainer 보호 라벨 설정
+    labels:
+      dev.quenary.tugtainer.protected: "true"
+    networks:
+      - default
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:80/alive
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=vaultwarden
+# ==================================================
+# 네트워크 설정
+# ==================================================
+networks:
+  default:
+    name: vaultwarden-network

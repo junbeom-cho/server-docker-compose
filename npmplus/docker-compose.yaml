@@ -1,0 +1,173 @@
+# ==================================================
+# NPMplus : 리버스 프록시/SSL 관리 + CrowdSec
+# ==================================================
+
+services:
+  # ==================================================
+  # NPMplus : 리버스 프록시/SSL 관리
+  # 평균 CPU : 0 ~ 1%
+  # 평균 메모리 : 100MB
+  # ==================================================
+  npmplus:
+    image: docker.io/zoeyvid/npmplus:latest
+    container_name: npmplus
+    restart: unless-stopped
+    ports:
+      - 80:80/tcp
+      - 443:443/tcp
+      - 443:443/udp
+      - 10001:81/tcp
+    volumes:
+      - /opt/data/npmplus/data:/data
+    environment:
+      # 컨테이너 내부 표준 시간대
+      - TZ=Asia/Seoul
+      # 컨테이너 프로세스 실행 사용자 UID
+      - PUID=1000
+      # 컨테이너 프로세스 실행 그룹 GID
+      - PGID=1000
+      # 내부 로그 로테이션 활성화 여부
+      - LOGROTATE=true
+      # 로그 보관 세대 수
+      - LOGROTATIONS=7
+      # IPv6 비활성화 여부
+      - DISABLE_IPV6=true
+      # Tugtainer 보호 라벨 설정
+    labels:
+      dev.quenary.tugtainer.protected: "true"
+    networks:
+      - default
+      - authentik-network
+      - filebrowser-network
+      - homepage-network
+      - it-tools-network
+      - mealie-network
+      - obsidian-blog-network
+      - paperless-network
+      - pingvin-share-x-network
+      - rallly-network
+      - shlink-network
+      - stirling-pdf-network
+      - uptime-kuma-network
+      - vaultwarden-network
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - --quiet
+        - --tries=1
+        - --spider
+        - http://localhost:81
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=npmplus
+  # ==================================================
+  # CrowdSec : 보안 이벤트 감지 및 대응
+  # 평균 CPU : 0 ~ 0.5%
+  # 평균 메모리 : 50MB
+  # ==================================================
+  crowdsec:
+    image: docker.io/crowdsecurity/crowdsec:latest
+    container_name: npmplus_crowdsec
+    restart: unless-stopped
+    ports:
+      - 11003:8080
+    volumes:
+      - /opt/data/npmplus/crowdsec/conf:/etc/crowdsec
+      - /opt/data/npmplus/crowdsec/data:/var/lib/crowdsec/data
+      - /opt/data/npmplus/data/logs:/var/log/npmplus:ro
+    environment:
+      # 컨테이너 내부 표준 시간대
+      - TZ=Asia/Seoul
+      # 로드할 CrowdSec 컬렉션 목록
+      - COLLECTIONS=crowdsecurity/nginx-proxy-manager
+      # 로그 파일 접근 그룹 GID
+      - GID=1000
+    # Tugtainer 보호 라벨 설정
+    labels:
+      dev.quenary.tugtainer.protected: "true"
+    networks:
+      - default
+    depends_on:
+      - npmplus
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pgrep crowdsec >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=npmplus-crowdsec
+# ==================================================
+# 네트워크 설정
+# ==================================================
+networks:
+  default:
+    name: npmplus-network
+  authentik-network:
+    external: true
+  filebrowser-network:
+    external: true
+  homepage-network:
+    external: true
+  it-tools-network:
+    external: true
+  mealie-network:
+    external: true
+  obsidian-blog-network:
+    external: true
+  paperless-network:
+    external: true
+  pingvin-share-x-network:
+    external: true
+  rallly-network:
+    external: true
+  shlink-network:
+    external: true
+  stirling-pdf-network:
+    external: true
+  uptime-kuma-network:
+    external: true
+  vaultwarden-network:
+    external: true

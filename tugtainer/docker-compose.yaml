@@ -1,0 +1,117 @@
+# ==================================================
+# Tugtainer : Docker 컨테이너 관리 대시보드
+# ==================================================
+
+services:
+  # =================================================
+  # socket-proxy : Docker API 프록시 (보안 격리)
+  # Avg CPU: 0 ~ 0.5%
+  # Avg Memory: 20MB
+  # =================================================
+  socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:latest
+    container_name: socket-proxy
+    environment:
+      CONTAINERS: 1
+      EVENTS: 1
+      IMAGES: 1
+      INFO: 1
+      LOG_LEVEL: warning
+      PING: 1
+      NETWORKS: 1
+      POST: 1
+      TZ: Asia/Seoul
+      VERSION: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /run
+    networks:
+      - default
+    labels:
+      dev.quenary.tugtainer.protected: "true"
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test: wget --spider http://localhost:2375/version || exit 1
+      interval: 29s
+      timeout: 5s
+      retries: 3
+      start_period: 21s
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 256MB
+          cpus: "1.0"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=socket-proxy
+  # ==================================================
+  # Tugtainer 웹 UI
+  # Avg CPU: 0 ~ 0.5%
+  # Avg Memory: 200MB
+  # ==================================================
+  app:
+    container_name: tugtainer
+    image: ghcr.io/quenary/tugtainer:1
+    volumes:
+      - /opt/data/tugtainer:/tugtainer
+    restart: unless-stopped
+    environment:
+      DOCKER_HOST: tcp://socket-proxy:2375
+    ports:
+      - 12004:80
+    depends_on:
+      - socket-proxy
+    networks:
+      - default
+    labels:
+      dev.quenary.tugtainer.protected: true
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:80/api/public/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # ==================================================
+    # 리소스 제한 - 필요시 조정
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=tugtainer
+# ==================================================
+# 네트워크 설정
+# ==================================================
+networks:
+  default:
+    name: tugtainer-network

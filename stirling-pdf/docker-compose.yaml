@@ -1,0 +1,71 @@
+# ==================================================
+# Stirling-PDF : 문서/PDF 처리 웹 서비스
+# 평균 CPU : 0 ~ 1%
+# 평균 메모리 : 500MB ~ 1GB (작업량에 따라 다름)
+# ==================================================
+
+services:
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:latest
+    container_name: stirling-pdf
+    restart: unless-stopped
+    ports:
+      - 15002:8080
+    volumes:
+      - /opt/data/stirling-pdf/tessdata:/usr/share/tesseract-ocr/5/tessdata:rw
+      - /opt/data/stirling-pdf/configs:/configs:rw
+      - /opt/data/stirling-pdf/logs:/logs:rw
+      - /opt/data/stirling-pdf/pipeline:/pipeline:rw
+    environment:
+      # 로그인 인증 기능 활성화 여부
+      - SECURITY_ENABLELOGIN=false
+      # 기본 UI 언어/로케일
+      - SYSTEM_DEFAULTLOCALE=ko_KR
+      # OCR 인식 언어 목록
+      - OCR_LANGS=kor,eng,chi_tra
+      # 고급 HTML/북 변환 기능 설치 여부
+      - INSTALL_BOOK_AND_ADVANCED_HTML_OPS=false
+      # 작업 처리 제한 시간(분)
+      - STIRLING_PDF_PROCESS_TIMEOUT_MINUTES=120
+      # Docker 보안 모드 활성화 여부
+      - DOCKER_ENABLE_SECURITY=false
+      # 서비스 루트 경로
+      - SYSTEM_ROOTURIPATH=/
+      # 정적 커스텀 파일 경로
+      - SYSTEM_CUSTOMSTATICFILEPATH=/customFiles/
+    networks:
+      - default
+    # ==================================================
+    # 헬스체크
+    # ==================================================
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -fsS http://127.0.0.1:8080/ >/dev/null || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    # ==================================================
+    # 리소스 제한 - OCR시 성능 많이 잡아먹음
+    # ==================================================
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+          cpus: "6"
+    # ==================================================
+    # 로그 설정
+    # ==================================================
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+        labels: service=stirling-pdf
+# ==================================================
+# 네트워크 설정
+# ==================================================
+networks:
+  default:
+    name: stirling-pdf-network
