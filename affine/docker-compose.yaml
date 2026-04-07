@@ -1,0 +1,74 @@
+name: affine
+services:
+  affine:
+    image: ghcr.io/toeverything/affine:stable
+    container_name: affine-server
+    ports:
+      - 14006:3010
+    depends_on:
+      redis:
+        condition: service_healthy
+      affine_migration:
+        condition: service_completed_successfully
+    volumes:
+      # custom configurations
+      - /opt/data/affine/storage:/root/.affine/storage
+      - /opt/data/affine/config:/root/.affine/config
+    environment:
+      - AFFINE_SERVER_HOST=affine.junbeom.work
+      - AFFINE_SERVER_EXTERNAL_URL=https://affine.junbeom.work
+      - REDIS_SERVER_HOST=redis
+      - DATABASE_URL=${DATABASE_URL}
+      - AFFINE_INDEXER_ENABLED=false
+      - MAILER_HOST=smtp.resend.com
+      - MAILER_PORT=567
+      - MAILER_USER=resend
+      - MAILER_PASSWORD=${RESEND_API_KEY}
+      - MAILER_SENDER=affine@junbeom.work
+      - DEFAULT_LANGUAGE=ko_KR
+    restart: unless-stopped
+    networks:
+      - default
+      - postgresql-network
+  affine_migration:
+    image: ghcr.io/toeverything/affine:stable
+    container_name: affine-migration
+    volumes:
+      # custom configurations
+      - /opt/data/affine/storage:/root/.affine/storage
+      - /opt/data/affine/config:/root/.affine/config
+    command:
+      - sh
+      - -c
+      - node ./scripts/self-host-predeploy.js
+    environment:
+      - REDIS_SERVER_HOST=redis
+      - DATABASE_URL=${DATABASE_URL}
+      - AFFINE_INDEXER_ENABLED=false
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - default
+      - postgresql-network
+  redis:
+    image: redis
+    container_name: affine-redis
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - --raw
+        - incr
+        - ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - default
+networks:
+  default:
+    name: affine-network
+  postgresql-network:
+    external: true
