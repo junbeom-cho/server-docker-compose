@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BACKUP_DIR="/opt/stacks/postgresql"
+BACKUP_DIR="/opt/data/postgresql"
 CONTAINER_NAME="postgresql"
 
 # 현재 시간 출력 (로그 확인용)
