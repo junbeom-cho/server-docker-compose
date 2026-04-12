@@ -7,7 +7,7 @@ services:
       - 14005:8443
     volumes:
       - /opt/data/code-server/config:/config
-      - /home/junbeom/obsidian-blog:/config/workspace/obsidian-blog
+      - /home/junbeom/obsidian-vault:/config/workspace/obsidian-vault
     environment:
       - PUID=1000
       - PGID=1000
