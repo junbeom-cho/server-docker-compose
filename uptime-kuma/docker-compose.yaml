@@ -43,6 +43,8 @@ services:
       - syncthing-network
       - tugtainer-network
       - vaultwarden-network
+      - outline-network
+      - affine-network
     # ==================================================
     # 헬스체크
     # ==================================================
@@ -121,4 +123,8 @@ networks:
   uptime-kuma-network:
     external: true
   vaultwarden-network:
+    external: true
+  outline-network:
+    external: true
+  affine-network:
     external: true
