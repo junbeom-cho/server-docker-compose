@@ -12,40 +12,28 @@ services:
     ports:
       - 15004:3000
     environment:
-      # PostgreSQL 연결 URL
-      - DATABASE_URL=postgres://rallly_user:${PG_RALLLY_USER_PASSWORD}@postgresql:5432/rallly_db
-      # 애플리케이션 시크릿 값
-      - SECRET_PASSWORD=${RALLLY_SECRET}
-      # 프론트엔드 공개 기본 URL
+      # General
       - NEXT_PUBLIC_BASE_URL=https://rallly.junbeom.work
-      # 사용자 문의 응답용 이메일 주소
+      - SECRET_PASSWORD=${RALLLY_SECRET}
       - SUPPORT_EMAIL=rallly@junbeom.work
-      # 가입 허용 이메일 화이트리스트
-      - ALLOWED_EMAILS=dev.junbeom@gmail.com
-      # 인증 필수 여부
-      - AUTH_REQUIRED=true
-      # NextAuth 기준 URL
-      - NEXTAUTH_URL=https://rallly.junbeom.work
-      # 프록시 환경 Host 신뢰 여부
-      - AUTH_TRUST_HOST=true
-      # 신규 가입 허용 여부
-      - REGISTRATION_ENABLED=false
-      # SMTP 서버 주소
-      - SMTP_HOST=smtp.resend.com
-      # SMTP 포트
-      - SMTP_PORT=587
-      # SMTP SSL/TLS 강제 사용 여부
-      - SMTP_SECURE=false
-      # SMTP 인증서 검증 여부
-      - SMTP_REJECT_UNAUTHORIZED=true
-      # SMTP 사용자명
-      - SMTP_USER=resend
-      # SMTP 비밀번호(API 키)
-      - SMTP_PWD=${RESEND_RALLLY_API_KEY}
-      # 발신자 이메일 주소
       - NOREPLY_EMAIL=rallly@junbeom.work
-      # 발신자 표시 이름
       - NOREPLY_EMAIL_NAME=Rallly
+      - INITIAL_ADMIN_EMAIL=dev.junbeom@gmail.com
+      # Datbase
+      - DATABASE_URL=postgres://rallly_user:${PG_RALLLY_USER_PASSWORD}@postgresql:5432/rallly_db
+      # SMTP
+      - SMTP_HOST=smtp.resend.com
+      - SMTP_PORT=465
+      - SMTP_SECURE=true
+      - SMTP_USER=resend
+      - SMTP_PWD=${RESEND_RALLLY_API_KEY}
+      - SMTP_REJECT_UNAUTHORIZED=true
+      # Auth
+      - EMAIL_LOGIN_ENABLED=true
+      - REGISTRATION_ENABLED=true
+      - ALLOWED_EMAILS=dev.junbeom@gmail.com
+      - NEXTAUTH_URL=https://rallly.junbeom.work
+      - AUTH_TRUST_HOST=true
     networks:
       - default
       - postgresql-network
@@ -70,7 +58,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1G
           cpus: "1.0"
     # ==================================================
     # 로그 설정
