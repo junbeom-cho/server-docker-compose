@@ -35,10 +35,6 @@
         href: http://192.168.50.200:12002
         description: "디스크 상태 모니터링"
         icon: scrutiny-light.svg
-    - Kopia:
-        href: http://192.168.50.200:12003
-        description: "백업 관리"
-        icon: kopia.svg
     - Tugtainer:
         href: http://192.168.50.200:12004
         description: "컨테이너 업데이트 관리 도구"

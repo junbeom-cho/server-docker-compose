@@ -29,7 +29,6 @@ services:
       - filebrowser-network
       - homepage-network
       - it-tools-network
-      - kopia-network
       - mealie-network
       - npmplus-network
       - obsidian-blog-network
@@ -93,8 +92,6 @@ networks:
   homepage-network:
     external: true
   it-tools-network:
-    external: true
-  kopia-network:
     external: true
   mealie-network:
     external: true
