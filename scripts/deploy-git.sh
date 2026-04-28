@@ -7,7 +7,7 @@ echo "Quartz 및 Docusaurus git 배포 시작..."
 # ==========================================
 echo "\n[1/2] Quartz Blog 동기화 및 빌드 중..."
 cd /opt/stacks/quartz-blog
-git pull origin main
+git pull origin v4
 docker compose up -d --build
 
 # ==========================================
