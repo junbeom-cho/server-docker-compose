@@ -31,7 +31,7 @@ services:
       - it-tools-network
       - mealie-network
       - npmplus-network
-      - obsidian-blog-network
+      - quartz-network
       - paperless-network
       - pingvin-share-x-network
       - postgresql-network
@@ -97,7 +97,7 @@ networks:
     external: true
   npmplus-network:
     external: true
-  obsidian-blog-network:
+  quartz-network:
     external: true
   paperless-network:
     external: true

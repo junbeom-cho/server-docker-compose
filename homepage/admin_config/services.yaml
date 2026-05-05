@@ -83,6 +83,10 @@
         href: http://192.168.50.200:14006/admin
         description: "노션 대체 지식 관리 도구"
         icon: affine-light.svg
+    - Docusaurus:
+        href: http://192.168.50.200:14007
+        description: "개인 기술 문서 관리"
+        icon: docusaurus.svg
 
 - Utility & Lifestyle:
     - Stirling-PDF:

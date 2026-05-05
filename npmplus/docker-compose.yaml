@@ -42,7 +42,7 @@ services:
       - homepage-network
       - it-tools-network
       - mealie-network
-      - obsidian-blog-network
+      - quartz-network
       - paperless-network
       - pingvin-share-x-network
       - rallly-network
@@ -157,7 +157,7 @@ networks:
     external: true
   mealie-network:
     external: true
-  obsidian-blog-network:
+  quartz-network:
     external: true
   paperless-network:
     external: true
